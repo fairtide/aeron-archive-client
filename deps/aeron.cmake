@@ -25,5 +25,5 @@ message(STATUS "Aeron resources: ${Aeron_RESOURCES_DIR}")
 add_library(aeron STATIC IMPORTED)
 add_dependencies(aeron aeron_project)
 set_property(TARGET aeron PROPERTY IMPORTED_LOCATION ${install_dir}/lib/libaeron_client.a)
-target_include_directories(aeron INTERFACE ${AERON_INCLUDE_DIR})
+target_include_directories(aeron INTERFACE ${Aeron_INCLUDE_DIR})
 
