@@ -17,12 +17,14 @@ set(SOURCE
     ArchiveProxy.cpp
     Configuration.cpp
     Context.cpp
+    RecordingDescriptorPoller.cpp
 )
 
 set(HEADERS
     ArchiveProxy.h
     Configuration.h
     Context.h
+    RecordingDescriptorPoller.h
 )
 
 #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DDISABLE_BOUNDS_CHECKS")
