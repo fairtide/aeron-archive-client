@@ -20,23 +20,16 @@
 #include <Aeron.h>
 #include <ControlledFragmentAssembler.h>
 
+#include <io_aeron_archive_codecs/ControlResponseCode.h>
+
 namespace aeron {
 namespace archive {
 
-using RecordingDescriptorConsumer = std::function<void(
-    long controlSessionId, long correlationId, long recordingId, long startTimestamp, long stopTimestamp,
-    long startPosition, long stopPosition, int initialTermId, int segmentFileLength, int termBufferLength,
-    int mtuLength, int sessionId, int streamId, const std::string& strippedChannel, const std::string& originalChannel,
-    const std::string& sourceIdentity)>;
-
-class RecordingDescriptorPoller {
+class ControlResponsePoller {
 public:
-    RecordingDescriptorPoller(const std::shared_ptr<aeron::Subscription>& subscription, std::int32_t fragmentLimit,
-                              std::int64_t controlSessionId);
+    ControlResponsePoller(const std::shared_ptr<aeron::Subscription>& subscription, std::int32_t fragmentLimit);
 
     std::int32_t poll();
-    void reset(std::int64_t expectedCorrelationId, std::int32_t remainingRecordCount,
-               RecordingDescriptorConsumer&& consumer);
 
 private:
     aeron::ControlledPollAction onFragment(aeron::concurrent::AtomicBuffer& buffer, aeron::util::index_t offset,
@@ -45,13 +38,15 @@ private:
 private:
     std::shared_ptr<aeron::Subscription> subscription_;
     std::int32_t fragmentLimit_;
-    std::int64_t controlSessionId_;
     aeron::ControlledFragmentAssembler fragmentAssembler_;
 
-    std::int64_t expectedCorrelationId_;
-    std::int32_t remainingRecordCount_;
-    RecordingDescriptorConsumer consumer_;
-    bool isDispatchComplete_{false};
+    std::int64_t controlSessionId_;
+    std::int64_t correlationId_;
+    std::int64_t relevantId_;
+    std::int64_t templateId_;
+    io::aeron::archive::codecs::ControlResponseCode::Value code_;
+    std::string errorMessage_;
+    bool isPollComplete_{false};
 };
 
 }  // namespace archive

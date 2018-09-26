@@ -12,11 +12,14 @@ add_custom_target(generated_sbe_code
     COMMENT "Generating SBE stubs"
 )
 
+add_dependencies(generated_sbe_code sbe)
+
 # static library
 set(SOURCE
     ArchiveProxy.cpp
     Configuration.cpp
     Context.cpp
+    ControlResponsePoller.cpp
     RecordingDescriptorPoller.cpp
 )
 
@@ -24,6 +27,7 @@ set(HEADERS
     ArchiveProxy.h
     Configuration.h
     Context.h
+    ControlResponsePoller.h
     RecordingDescriptorPoller.h
 )
 
