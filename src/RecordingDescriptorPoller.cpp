@@ -25,88 +25,75 @@ namespace codecs = io::aeron::archive::codecs;
 namespace aeron {
 namespace archive {
 
-RecordingDescriptorPoller::RecordingDescriptorPoller(const std::shared_ptr<Subscription> & subscription, std::int32_t fragmentLimit,
-        std::uint64_t controlSessionId)
-    : subscription_(subscription),
-      fragmentLimit_(fragmentLimit),
-      controlSessionId_(controlSessionId),
-      fragmentAssembler_([this](concurrent::AtomicBuffer& buffer, util::index_t offset, util::index_t length, Header& header)
-        {
-            return onFragment(buffer, offset, length, header);
-        })
-{
+RecordingDescriptorPoller::RecordingDescriptorPoller(const std::shared_ptr<Subscription>& subscription,
+                                                     std::int32_t fragmentLimit, std::uint64_t controlSessionId)
+    : subscription_(subscription)
+    , fragmentLimit_(fragmentLimit)
+    , controlSessionId_(controlSessionId)
+    , fragmentAssembler_([this](concurrent::AtomicBuffer& buffer, util::index_t offset, util::index_t length,
+                                Header& header) { return onFragment(buffer, offset, length, header); }) {
     //
 }
 
-std::int32_t RecordingDescriptorPoller::poll()
-{
+std::int32_t RecordingDescriptorPoller::poll() {
     isDispatchComplete_ = false;
     return subscription_->controlledPoll(fragmentAssembler_.handler(), fragmentLimit_);
 }
 
-void RecordingDescriptorPoller::reset(std::int64_t expectedCorrelationId, std::int32_t remainingRecordCount, RecordingDescriptorConsumer&& consumer)
-{
+void RecordingDescriptorPoller::reset(std::int64_t expectedCorrelationId, std::int32_t remainingRecordCount,
+                                      RecordingDescriptorConsumer&& consumer) {
     expectedCorrelationId_ = expectedCorrelationId;
     consumer_ = consumer;
     remainingRecordCount_ = remainingRecordCount;
     isDispatchComplete_ = false;
 }
 
-ControlledPollAction RecordingDescriptorPoller::onFragment(concurrent::AtomicBuffer& buffer, util::index_t offset, util::index_t length, Header& header)
-{
+ControlledPollAction RecordingDescriptorPoller::onFragment(concurrent::AtomicBuffer& buffer, util::index_t offset,
+                                                           util::index_t length, Header& header) {
     codecs::MessageHeader hdr;
-    hdr.wrap((char *) buffer.buffer(), offset, 0 /* TODO */, buffer.capacity());
+    hdr.wrap((char*)buffer.buffer(), offset, 0 /* TODO */, buffer.capacity());
 
     const std::uint16_t templateId = hdr.templateId();
 
-    if (templateId == codecs::ControlResponse::sbeTemplateId())
-    {
+    if (templateId == codecs::ControlResponse::sbeTemplateId()) {
         codecs::ControlResponse msg;
-        msg.wrapForDecode((char *) buffer.buffer(), offset + hdr.encodedLength(), hdr.blockLength(),
-                hdr.version(), buffer.capacity());
+        msg.wrapForDecode((char*)buffer.buffer(), offset + hdr.encodedLength(), hdr.blockLength(), hdr.version(),
+                          buffer.capacity());
 
-        if (controlSessionId_ == msg.controlSessionId())
-        {
+        if (controlSessionId_ == msg.controlSessionId()) {
             auto code = msg.code();
 
-            if (code == codecs::ControlResponseCode::RECORDING_UNKNOWN)
-            {
+            if (code == codecs::ControlResponseCode::RECORDING_UNKNOWN) {
                 isDispatchComplete_ = true;
                 return ControlledPollAction::BREAK;
-            }
-            else if (code == codecs::ControlResponseCode::ERROR)
-            {
-                throw std::runtime_error("response for expectedCorrelationId=" + std::to_string(expectedCorrelationId_) + ", error: " + msg.getErrorMessageAsString());
+            } else if (code == codecs::ControlResponseCode::ERROR) {
+                throw std::runtime_error(
+                    "response for expectedCorrelationId=" + std::to_string(expectedCorrelationId_) +
+                    ", error: " + msg.getErrorMessageAsString());
             }
         }
-    }
-    else if (templateId == codecs::RecordingDescriptor::sbeTemplateId())
-    {
+    } else if (templateId == codecs::RecordingDescriptor::sbeTemplateId()) {
         codecs::RecordingDescriptor msg;
-        msg.wrapForDecode((char *) buffer.buffer(), offset + hdr.encodedLength(), hdr.blockLength(),
-                hdr.version(), buffer.capacity());
+        msg.wrapForDecode((char*)buffer.buffer(), offset + hdr.encodedLength(), hdr.blockLength(), hdr.version(),
+                          buffer.capacity());
 
         const std::int64_t correlationId = msg.correlationId();
-        if (controlSessionId_ == msg.controlSessionId() && correlationId == expectedCorrelationId_)
-        {
+        if (controlSessionId_ == msg.controlSessionId() && correlationId == expectedCorrelationId_) {
             consumer_(controlSessionId_, correlationId, msg.recordingId(), msg.startTimestamp(), msg.stopTimestamp(),
-                    msg.startPosition(), msg.stopPosition(), msg.initialTermId(), msg.segmentFileLength(), msg.termBufferLength(),
-                    msg.mtuLength(), msg.sessionId(), msg.streamId(), msg.strippedChannel(), msg.originalChannel(), msg.sourceIdentity());
+                      msg.startPosition(), msg.stopPosition(), msg.initialTermId(), msg.segmentFileLength(),
+                      msg.termBufferLength(), msg.mtuLength(), msg.sessionId(), msg.streamId(), msg.strippedChannel(),
+                      msg.originalChannel(), msg.sourceIdentity());
 
-            if (--remainingRecordCount_ == 0)
-            {
+            if (--remainingRecordCount_ == 0) {
                 isDispatchComplete_ = true;
             }
         }
-    }
-    else
-    {
+    } else {
         throw std::runtime_error("unknown template id: " + std::to_string(templateId));
     }
 
     return ControlledPollAction::CONTINUE;
 }
 
-}
-}
-
+}  // namespace archive
+}  // namespace aeron

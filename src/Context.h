@@ -32,38 +32,38 @@ public:
     void conclude();
 
     // setters
-    Context & messageTimeoutNs(std::int64_t value);
-    Context & controlRequestChannel(const std::string & value);
-    Context & controlRequestStreamId(std::int32_t value);
-    Context & localControlChannel(const std::string & value);
-    Context & localControlStreamId(std::int32_t value);
-    Context & controlResponseChannel(const std::string & value);
-    Context & controlResponseStreamId(std::int32_t value);
-    Context & recordingEventsChannel(const std::string & value);
-    Context & recordingEventsStreamId(std::int32_t value);
-    Context & controlTermBufferSparse(bool value);
-    Context & controlTermBufferLength(std::int32_t value);
-    Context & controlMtuLength(std::int32_t value);
+    Context& messageTimeoutNs(std::int64_t value);
+    Context& controlRequestChannel(const std::string& value);
+    Context& controlRequestStreamId(std::int32_t value);
+    Context& localControlChannel(const std::string& value);
+    Context& localControlStreamId(std::int32_t value);
+    Context& controlResponseChannel(const std::string& value);
+    Context& controlResponseStreamId(std::int32_t value);
+    Context& recordingEventsChannel(const std::string& value);
+    Context& recordingEventsStreamId(std::int32_t value);
+    Context& controlTermBufferSparse(bool value);
+    Context& controlTermBufferLength(std::int32_t value);
+    Context& controlMtuLength(std::int32_t value);
 
-    Context & aeronDirectoryName(const std::string & value);
-    Context & aeron(const std::shared_ptr<aeron::Aeron> & value);
+    Context& aeronDirectoryName(const std::string& value);
+    Context& aeron(const std::shared_ptr<aeron::Aeron>& value);
 
     // getters
     std::int64_t messageTimeoutNs() const;
-    const std::string & controlRequestChannel() const;
+    const std::string& controlRequestChannel() const;
     std::int32_t controlRequestStreamId() const;
-    const std::string & localControlChannel() const;
+    const std::string& localControlChannel() const;
     std::int32_t localControlStreamId() const;
-    const std::string & controlResponseChannel() const;
+    const std::string& controlResponseChannel() const;
     std::int32_t controlResponseStreamId() const;
-    const std::string & recordingEventsChannel() const;
+    const std::string& recordingEventsChannel() const;
     std::int32_t recordingEventsStreamId() const;
     bool controlTermBufferSparse() const;
     std::int32_t controlTermBufferLength() const;
     std::int32_t controlMtuLength() const;
 
-    const std::string & aeronDirectoryName() const;
-    const std::shared_ptr<aeron::Aeron> & aeron() const;
+    const std::string& aeronDirectoryName() const;
+    const std::shared_ptr<aeron::Aeron>& aeron() const;
 
     // TODO: ownsAeronClient, lock
     // TODO: idle strategy - it will require a generic version of this class
@@ -76,6 +76,5 @@ private:
     std::string controlRequestChannel_;
 };
 
-}
-}
-
+}  // namespace archive
+}  // namespace aeron

@@ -23,33 +23,24 @@
 namespace aeron {
 namespace archive {
 
-using RecordingDescriptorConsumer = std::function<void (long controlSessionId,
-        long correlationId,
-        long recordingId,
-        long startTimestamp,
-        long stopTimestamp,
-        long startPosition,
-        long stopPosition,
-        int initialTermId,
-        int segmentFileLength,
-        int termBufferLength,
-        int mtuLength,
-        int sessionId,
-        int streamId,
-        const std::string & strippedChannel,
-        const std::string & originalChannel,
-        const std::string & sourceIdentity)>;
+using RecordingDescriptorConsumer = std::function<void(
+    long controlSessionId, long correlationId, long recordingId, long startTimestamp, long stopTimestamp,
+    long startPosition, long stopPosition, int initialTermId, int segmentFileLength, int termBufferLength,
+    int mtuLength, int sessionId, int streamId, const std::string& strippedChannel, const std::string& originalChannel,
+    const std::string& sourceIdentity)>;
 
 class RecordingDescriptorPoller {
 public:
-    RecordingDescriptorPoller(const std::shared_ptr<aeron::Subscription> & subscription, std::int32_t fragmentLimit,
-            std::uint64_t controlSessionId);
+    RecordingDescriptorPoller(const std::shared_ptr<aeron::Subscription>& subscription, std::int32_t fragmentLimit,
+                              std::uint64_t controlSessionId);
 
     std::int32_t poll();
-    void reset(std::int64_t expectedCorrelationId, std::int32_t remainingRecordCount, RecordingDescriptorConsumer&& consumer);
+    void reset(std::int64_t expectedCorrelationId, std::int32_t remainingRecordCount,
+               RecordingDescriptorConsumer&& consumer);
 
 private:
-    aeron::ControlledPollAction onFragment(aeron::concurrent::AtomicBuffer& buffer, aeron::util::index_t offset, aeron::util::index_t length, aeron::Header& header);
+    aeron::ControlledPollAction onFragment(aeron::concurrent::AtomicBuffer& buffer, aeron::util::index_t offset,
+                                           aeron::util::index_t length, aeron::Header& header);
 
 private:
     std::shared_ptr<aeron::Subscription> subscription_;
@@ -60,9 +51,8 @@ private:
     std::int64_t expectedCorrelationId_;
     std::int32_t remainingRecordCount_;
     RecordingDescriptorConsumer consumer_;
-    bool isDispatchComplete_ { false };
+    bool isDispatchComplete_{false};
 };
 
-}
-}
-
+}  // namespace archive
+}  // namespace aeron

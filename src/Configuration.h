@@ -22,12 +22,11 @@
 namespace aeron {
 namespace archive {
 
-struct Configuration
-{
+struct Configuration {
 public:
     // constructors
     Configuration();
-    explicit Configuration(const std::string & filename);
+    explicit Configuration(const std::string& filename);
 
     Configuration(const Configuration&) = default;
     Configuration(Configuration&&) = default;
@@ -47,6 +46,5 @@ public:
     std::int32_t controlMtuLength;
 };
 
-}
-}
-
+}  // namespace archive
+}  // namespace aeron

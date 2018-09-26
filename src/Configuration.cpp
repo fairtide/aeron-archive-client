@@ -15,8 +15,8 @@
  */
 
 
-#include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include <string>
 
@@ -73,7 +73,7 @@ static const std::int32_t CONTROL_TERM_BUFFER_LENGTH_DEFAULT = 64 * 1024;
 // MTU length for control streams.
 static const std::string CONTROL_MTU_LENGTH_PARAM_NAME = "aeron.archive.control.mtu.length";
 static const std::int32_t CONTROL_MTU_LENGTH_DEFAULT = 1408;
-}
+}  // namespace
 
 namespace aeron {
 namespace archive {
@@ -93,7 +93,7 @@ Configuration::Configuration() {
     controlMtuLength = CONTROL_MTU_LENGTH_DEFAULT;
 }
 
-Configuration::Configuration(const std::string & filename) {
+Configuration::Configuration(const std::string& filename) {
     using namespace boost::property_tree;
 
     ptree pt;
@@ -113,6 +113,5 @@ Configuration::Configuration(const std::string & filename) {
     controlMtuLength = pt.get(CONTROL_MTU_LENGTH_PARAM_NAME, CONTROL_MTU_LENGTH_DEFAULT);
 }
 
-}
-}
-
+}  // namespace archive
+}  // namespace aeron
