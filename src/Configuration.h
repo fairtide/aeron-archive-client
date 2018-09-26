@@ -22,38 +22,29 @@
 namespace aeron {
 namespace archive {
 
-class Configuration
+struct Configuration
 {
 public:
+    // constructors
     Configuration();
-    Configuration(const std::string & filename);
+    explicit Configuration(const std::string & filename);
 
-    std::int64_t messageTimeoutNs() const { return messageTimeoutNs_; }
-    const std::string & controlChannel() const { return controlChannel_; }
-    std::int32_t controlStreamId() const { return controlStreamId_; }
-    const std::string & localControlChannel() const { return localControlChannel_; }
-    std::int32_t localControlStreamId() const { return localControlStreamId_; }
-    const std::string & controlResponseChannel() const { return controlResponseChannel_; }
-    std::int32_t controlResponseStreamId() const { return controlResponseStreamId_; }
-    const std::string & recordingEventsChannel() const { return recordingEventsChannel_; }
-    std::int32_t recordingEventsStreamId() const { return recordingEventsStreamId_; }
-    bool controlTermBufferSparse() const { return controlTermBufferSparse_; }
-    std::int32_t controlTermBufferLength() const { return controlTermBufferLength_; }
-    std::int32_t controlMtuLength() const { return controlMtuLength_; }
+    Configuration(const Configuration&) = default;
+    Configuration(Configuration&&) = default;
 
-private:
-    std::int64_t messageTimeoutNs_;
-    std::string controlChannel_;
-    std::int32_t controlStreamId_;
-    std::string localControlChannel_;
-    std::int32_t localControlStreamId_;
-    std::string controlResponseChannel_;
-    std::int32_t controlResponseStreamId_;
-    std::string recordingEventsChannel_;
-    std::int32_t recordingEventsStreamId_;
-    bool controlTermBufferSparse_;
-    std::int32_t controlTermBufferLength_;
-    std::int32_t controlMtuLength_;
+    // parameters
+    std::int64_t messageTimeoutNs;
+    std::string controlChannel;
+    std::int32_t controlStreamId;
+    std::string localControlChannel;
+    std::int32_t localControlStreamId;
+    std::string controlResponseChannel;
+    std::int32_t controlResponseStreamId;
+    std::string recordingEventsChannel;
+    std::int32_t recordingEventsStreamId;
+    bool controlTermBufferSparse;
+    std::int32_t controlTermBufferLength;
+    std::int32_t controlMtuLength;
 };
 
 }

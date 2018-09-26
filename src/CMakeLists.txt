@@ -16,11 +16,13 @@ add_custom_target(generated_sbe_code
 set(SOURCE
     ArchiveProxy.cpp
     Configuration.cpp
+    Context.cpp
 )
 
 set(HEADERS
     ArchiveProxy.h
     Configuration.h
+    Context.h
 )
 
 #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DDISABLE_BOUNDS_CHECKS")

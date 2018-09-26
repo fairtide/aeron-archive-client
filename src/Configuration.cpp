@@ -103,18 +103,18 @@ namespace aeron {
 namespace archive {
 
 Configuration::Configuration() {
-    messageTimeoutNs_ = MESSAGE_TIMEOUT_DEFAULT_NS;
-    controlChannel_ = CONTROL_CHANNEL_DEFAULT;
-    controlStreamId_ = CONTROL_STREAM_ID_DEFAULT;
-    localControlChannel_ = LOCAL_CONTROL_CHANNEL_DEFAULT;
-    localControlStreamId_ = LOCAL_CONTROL_STREAM_ID_DEFAULT;
-    controlResponseChannel_ = CONTROL_RESPONSE_CHANNEL_DEFAULT;
-    controlResponseStreamId_ = CONTROL_RESPONSE_STREAM_ID_DEFAULT;
-    recordingEventsChannel_ = RECORDING_EVENTS_CHANNEL_DEFAULT;
-    recordingEventsStreamId_ = RECORDING_EVENTS_STREAM_ID_DEFAULT;
-    controlTermBufferSparse_ = CONTROL_TERM_BUFFER_SPARSE_DEFAULT;
-    controlTermBufferLength_ = CONTROL_TERM_BUFFER_LENGTH_DEFAULT;
-    controlMtuLength_ = CONTROL_MTU_LENGTH_DEFAULT;
+    messageTimeoutNs = MESSAGE_TIMEOUT_DEFAULT_NS;
+    controlChannel = CONTROL_CHANNEL_DEFAULT;
+    controlStreamId = CONTROL_STREAM_ID_DEFAULT;
+    localControlChannel = LOCAL_CONTROL_CHANNEL_DEFAULT;
+    localControlStreamId = LOCAL_CONTROL_STREAM_ID_DEFAULT;
+    controlResponseChannel = CONTROL_RESPONSE_CHANNEL_DEFAULT;
+    controlResponseStreamId = CONTROL_RESPONSE_STREAM_ID_DEFAULT;
+    recordingEventsChannel = RECORDING_EVENTS_CHANNEL_DEFAULT;
+    recordingEventsStreamId = RECORDING_EVENTS_STREAM_ID_DEFAULT;
+    controlTermBufferSparse = CONTROL_TERM_BUFFER_SPARSE_DEFAULT;
+    controlTermBufferLength = CONTROL_TERM_BUFFER_LENGTH_DEFAULT;
+    controlMtuLength = CONTROL_MTU_LENGTH_DEFAULT;
 }
 
 Configuration::Configuration(const std::string & filename) {
@@ -123,18 +123,18 @@ Configuration::Configuration(const std::string & filename) {
     ptree pt;
     ini_parser::read_ini(filename, pt);
 
-    messageTimeoutNs_ = pt.get(MESSAGE_TIMEOUT_PROP_NAME, MESSAGE_TIMEOUT_DEFAULT_NS);
-    controlChannel_ = pt.get(CONTROL_CHANNEL_PROP_NAME, CONTROL_CHANNEL_DEFAULT);
-    controlStreamId_ = pt.get(CONTROL_STREAM_ID_PROP_NAME, CONTROL_STREAM_ID_DEFAULT);
-    localControlChannel_ = pt.get(LOCAL_CONTROL_CHANNEL_PROP_NAME, LOCAL_CONTROL_CHANNEL_DEFAULT);
-    localControlStreamId_ = pt.get(LOCAL_CONTROL_STREAM_ID_PROP_NAME, LOCAL_CONTROL_STREAM_ID_DEFAULT);
-    controlResponseChannel_ = pt.get(CONTROL_RESPONSE_CHANNEL_PROP_NAME, CONTROL_RESPONSE_CHANNEL_DEFAULT);
-    controlResponseStreamId_ = pt.get(CONTROL_RESPONSE_STREAM_ID_PROP_NAME, CONTROL_RESPONSE_STREAM_ID_DEFAULT);
-    recordingEventsChannel_ = pt.get(RECORDING_EVENTS_CHANNEL_PROP_NAME, RECORDING_EVENTS_CHANNEL_DEFAULT);
-    recordingEventsStreamId_ = pt.get(RECORDING_EVENTS_STREAM_ID_PROP_NAME, RECORDING_EVENTS_STREAM_ID_DEFAULT);
-    controlTermBufferSparse_ = pt.get(CONTROL_TERM_BUFFER_SPARSE_PARAM_NAME, CONTROL_TERM_BUFFER_SPARSE_DEFAULT);
-    controlTermBufferLength_ = pt.get(CONTROL_TERM_BUFFER_LENGTH_PARAM_NAME, CONTROL_TERM_BUFFER_LENGTH_DEFAULT);
-    controlMtuLength_ = pt.get(CONTROL_MTU_LENGTH_PARAM_NAME, CONTROL_MTU_LENGTH_DEFAULT);
+    messageTimeoutNs = pt.get(MESSAGE_TIMEOUT_PROP_NAME, MESSAGE_TIMEOUT_DEFAULT_NS);
+    controlChannel = pt.get(CONTROL_CHANNEL_PROP_NAME, CONTROL_CHANNEL_DEFAULT);
+    controlStreamId = pt.get(CONTROL_STREAM_ID_PROP_NAME, CONTROL_STREAM_ID_DEFAULT);
+    localControlChannel = pt.get(LOCAL_CONTROL_CHANNEL_PROP_NAME, LOCAL_CONTROL_CHANNEL_DEFAULT);
+    localControlStreamId = pt.get(LOCAL_CONTROL_STREAM_ID_PROP_NAME, LOCAL_CONTROL_STREAM_ID_DEFAULT);
+    controlResponseChannel = pt.get(CONTROL_RESPONSE_CHANNEL_PROP_NAME, CONTROL_RESPONSE_CHANNEL_DEFAULT);
+    controlResponseStreamId = pt.get(CONTROL_RESPONSE_STREAM_ID_PROP_NAME, CONTROL_RESPONSE_STREAM_ID_DEFAULT);
+    recordingEventsChannel = pt.get(RECORDING_EVENTS_CHANNEL_PROP_NAME, RECORDING_EVENTS_CHANNEL_DEFAULT);
+    recordingEventsStreamId = pt.get(RECORDING_EVENTS_STREAM_ID_PROP_NAME, RECORDING_EVENTS_STREAM_ID_DEFAULT);
+    controlTermBufferSparse = pt.get(CONTROL_TERM_BUFFER_SPARSE_PARAM_NAME, CONTROL_TERM_BUFFER_SPARSE_DEFAULT);
+    controlTermBufferLength = pt.get(CONTROL_TERM_BUFFER_LENGTH_PARAM_NAME, CONTROL_TERM_BUFFER_LENGTH_DEFAULT);
+    controlMtuLength = pt.get(CONTROL_MTU_LENGTH_PARAM_NAME, CONTROL_MTU_LENGTH_DEFAULT);
 }
 
 }
