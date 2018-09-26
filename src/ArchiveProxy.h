@@ -241,12 +241,11 @@ private:
         constexpr std::uint64_t offset{0};
         codecs::MessageHeader hdr;
 
-        hdr.wrap((char*)buffer_.buffer(), offset, T::sbeSchemaVersion(), buffer_.capacity())
+        hdr.wrap((char*)buffer_.buffer(), offset, 0 /* TODO */, buffer_.capacity())
             .blockLength(T::sbeBlockLength())
             .templateId(T::sbeTemplateId())
             .schemaId(T::sbeSchemaId())
-            //.schemaVersion(T::sbeSchemaVersion())
-            ;
+            .version(T::sbeSchemaVersion());
 
         return msg.wrapForEncode((char*)buffer_.buffer(), offset + hdr.encodedLength(), buffer_.capacity());
     }
