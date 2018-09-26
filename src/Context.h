@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <Aeron.h>
+
 #include "Configuration.h"
 
 namespace aeron {
@@ -27,9 +29,12 @@ public:
     Context();
     explicit Context(const Configuration& cfg);
 
+    void conclude();
+
+    // setters
     Context & messageTimeoutNs(std::int64_t value);
-    Context & controlChannel(const std::string & value);
-    Context & controlStreamId(std::int32_t value);
+    Context & controlRequestChannel(const std::string & value);
+    Context & controlRequestStreamId(std::int32_t value);
     Context & localControlChannel(const std::string & value);
     Context & localControlStreamId(std::int32_t value);
     Context & controlResponseChannel(const std::string & value);
@@ -40,9 +45,13 @@ public:
     Context & controlTermBufferLength(std::int32_t value);
     Context & controlMtuLength(std::int32_t value);
 
+    Context & aeronDirectoryName(const std::string & value);
+    Context & aeron(const std::shared_ptr<aeron::Aeron> & value);
+
+    // getters
     std::int64_t messageTimeoutNs() const;
-    const std::string & controlChannel() const;
-    std::int32_t controlStreamId() const;
+    const std::string & controlRequestChannel() const;
+    std::int32_t controlRequestStreamId() const;
     const std::string & localControlChannel() const;
     std::int32_t localControlStreamId() const;
     const std::string & controlResponseChannel() const;
@@ -53,8 +62,18 @@ public:
     std::int32_t controlTermBufferLength() const;
     std::int32_t controlMtuLength() const;
 
+    const std::string & aeronDirectoryName() const;
+    const std::shared_ptr<aeron::Aeron> & aeron() const;
+
+    // TODO: ownsAeronClient, lock
+    // TODO: idle strategy - it will require a generic version of this class
+    // same for lock if we want to replace a mutex with something like NoOpLock
+
 private:
     Configuration cfg_;
+    std::string aeronDirectoryName_;
+    std::shared_ptr<aeron::Aeron> aeron_;
+    std::string controlRequestChannel_;
 };
 
 }

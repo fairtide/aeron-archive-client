@@ -24,9 +24,24 @@ Context::Context() {}
 
 Context::Context(const Configuration& cfg) : cfg_(cfg) {}
 
+void Context::conclude()
+{
+    if (aeronDirectoryName_.empty())
+    {
+        aeronDirectoryName_ = aeron::Context().defaultAeronPath();
+    }
+
+    if (!aeron_)
+    {
+        aeron_ = aeron::Aeron::connect(aeron::Context().aeronDir(aeronDirectoryName_));
+    }
+
+    // TODO: rebuild it using a URI builder
+    // controlRequestChannel_
+}
+
 Context & Context::messageTimeoutNs(std::int64_t value) { cfg_.messageTimeoutNs = value; return *this; }
-Context & Context::controlChannel(const std::string & value) { cfg_.controlChannel = value; return *this; }
-Context & Context::controlStreamId(std::int32_t value) { cfg_.controlStreamId = value; return *this; }
+Context & Context::controlRequestStreamId(std::int32_t value) { cfg_.controlStreamId = value; return *this; }
 Context & Context::localControlChannel(const std::string & value) { cfg_.localControlChannel = value; return *this; }
 Context & Context::localControlStreamId(std::int32_t value) { cfg_.localControlStreamId = value; return *this; }
 Context & Context::controlResponseChannel(const std::string & value) { cfg_.controlResponseChannel = value; return *this; }
@@ -37,9 +52,12 @@ Context & Context::controlTermBufferSparse(bool value) { cfg_.controlTermBufferS
 Context & Context::controlTermBufferLength(std::int32_t value) { cfg_.controlTermBufferLength = value; return *this; }
 Context & Context::controlMtuLength(std::int32_t value) { cfg_.controlMtuLength = value; return *this; }
 
+Context & Context::aeronDirectoryName(const std::string & value) { aeronDirectoryName_ = value; return *this; }
+Context & Context::aeron(const std::shared_ptr<aeron::Aeron> & value) { aeron_ = value; return *this; }
+Context & Context::controlRequestChannel(const std::string & value) { controlRequestChannel_ = value; return *this; }
+
 std::int64_t Context::messageTimeoutNs() const { return cfg_.messageTimeoutNs; }
-const std::string & Context::controlChannel() const { return cfg_.controlChannel; }
-std::int32_t Context::controlStreamId() const { return cfg_.controlStreamId; }
+std::int32_t Context::controlRequestStreamId() const { return cfg_.controlStreamId; }
 const std::string & Context::localControlChannel() const { return cfg_.localControlChannel; }
 std::int32_t Context::localControlStreamId() const { return cfg_.localControlStreamId; }
 const std::string & Context::controlResponseChannel() const { return cfg_.controlResponseChannel; }
@@ -49,6 +67,10 @@ std::int32_t Context::recordingEventsStreamId() const { return cfg_.recordingEve
 bool Context::controlTermBufferSparse() const { return cfg_.controlTermBufferSparse; }
 std::int32_t Context::controlTermBufferLength() const { return cfg_.controlTermBufferLength; }
 std::int32_t Context::controlMtuLength() const { return cfg_.controlMtuLength; }
+
+const std::string & Context::aeronDirectoryName() const { return aeronDirectoryName_; }
+const std::shared_ptr<aeron::Aeron> & Context::aeron() const { return aeron_; }
+const std::string & Context::controlRequestChannel() const { return controlRequestChannel_; }
 
 }
 }
