@@ -1,5 +1,7 @@
 find_package(Boost REQUIRED)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic -Wextra -Wno-unused-parameter -std=c++14 -g")
+
 # generation of SBE C++ wrappers for the Aeron Archive RPC schema
 set(SBE_ARCHIVE_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/sbe")
 
@@ -16,6 +18,7 @@ add_dependencies(generated_sbe_code sbe)
 
 # static library
 set(SOURCE
+    AeronArchive.h
     ArchiveProxy.cpp
     Configuration.cpp
     Context.cpp
@@ -24,6 +27,7 @@ set(SOURCE
 )
 
 set(HEADERS
+    AeronArchive.cpp
     ArchiveProxy.h
     Configuration.h
     Context.h

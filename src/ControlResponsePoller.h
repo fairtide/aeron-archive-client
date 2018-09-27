@@ -29,6 +29,16 @@ class ControlResponsePoller {
 public:
     ControlResponsePoller(const std::shared_ptr<aeron::Subscription>& subscription, std::int32_t fragmentLimit);
 
+    const std::shared_ptr<aeron::Subscription> subscription() const;
+
+    std::int64_t controlSessionId() const;
+    std::int64_t correlationId() const;
+    std::int64_t relevantId() const;
+    std::int64_t templateId() const;
+    io::aeron::archive::codecs::ControlResponseCode::Value code() const;
+    const std::string & errorMessage() const;
+    bool isPollComplete() const;
+
     std::int32_t poll();
 
 private:
