@@ -1,0 +1,9 @@
+add_executable(RecordedBasicPublisher RecordedBasicPublisher.cpp)
+add_executable(ReplayedBasicSubscriber ReplayedBasicSubscriber.cpp)
+
+target_link_libraries(RecordedBasicPublisher aeron_archive_client)
+target_link_libraries(ReplayedBasicSubscriber aeron_archive_client)
+
+install(TARGETS RecordedBasicPublisher ReplayedBasicSubscriber
+    DESTINATION bin)
+

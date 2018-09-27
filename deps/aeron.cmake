@@ -22,8 +22,8 @@ message(STATUS "Aeron includes: ${Aeron_INCLUDE_DIR}")
 set(Aeron_RESOURCES_DIR ${install_dir}/resources CACHE STRING "Aeron resources")
 message(STATUS "Aeron resources: ${Aeron_RESOURCES_DIR}")
 
-add_library(aeron STATIC IMPORTED)
-add_dependencies(aeron aeron_project)
-set_property(TARGET aeron PROPERTY IMPORTED_LOCATION ${install_dir}/lib/libaeron_client.a)
-target_include_directories(aeron INTERFACE ${Aeron_INCLUDE_DIR})
+add_library(aeron_client STATIC IMPORTED GLOBAL)
+add_dependencies(aeron_client aeron_project)
+set_property(TARGET aeron_client PROPERTY IMPORTED_LOCATION ${install_dir}/lib/libaeron_client.a)
+#target_include_directories(aeron_client INTERFACE ${Aeron_INCLUDE_DIR})
 
