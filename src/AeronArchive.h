@@ -38,6 +38,17 @@ public:
     AeronArchive(const Context & ctx);
     AeronArchive(const Context & ctx, const ArchiveProxy & archiveProxy);
 
+    // helper methods
+    static std::shared_ptr<AeronArchive> connect();
+    static std::shared_ptr<AeronArchive> connect(const Context & ctx);
+
+    static std::shared_ptr<AeronArchive> asyncConnect();
+    static std::shared_ptr<AeronArchive> asyncConnect(const Context & ctx);
+
+    // getters
+    const Context & context() const;
+
+    //
     const std::string & pollForErrorResponse()
     {
         throw std::runtime_error("not implemented");
@@ -80,7 +91,7 @@ public:
     }
 
     std::int64_t startReplay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
-            const std::string & replayChannel, const std::string & replayStreamId)
+            const std::string & replayChannel, std::int32_t replayStreamId)
     {
         throw std::runtime_error("not implemented");
     }

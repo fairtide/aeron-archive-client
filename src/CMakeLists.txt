@@ -47,6 +47,7 @@ target_include_directories(aeron_archive_client
 target_link_libraries(aeron_archive_client
     aeron_client
     sbe
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 install(TARGETS aeron_archive_client ARCHIVE DESTINATION lib)

@@ -35,8 +35,7 @@ namespace archive {
 
 AeronArchive::AeronArchive(const Context & ctx) : ctx_(ctx), messageTimeoutNs_(ctx_.messageTimeoutNs()) {
     // TODO: I think it's better to pass a fully prepared context to the constructor
-    // Java implementation calls this method in the constructor, though I think it should be called outside of the constructor
-    // ctx_.conclude();
+    ctx_.conclude();
 
     aeron_ = ctx_.aeron();
     // aeronClientInvoker_ = aeron_->conductorAgentInvoker();
@@ -51,7 +50,9 @@ AeronArchive::AeronArchive(const Context & ctx) : ctx_(ctx), messageTimeoutNs_(c
 
     controlResponsePoller_ = std::make_unique<ControlResponsePoller>(subscription, FRAGMENT_LIMIT);
 
-    std::int64_t pubId = aeron_->addExclusivePublication(ctx_.controlRequestChannel(), ctx_.controlRequestStreamId());
+    // TODO: Java implementation uses exclusive publication
+    // std::int64_t pubId = aeron_->addExclusivePublication(ctx_.controlRequestChannel(), ctx_.controlRequestStreamId());
+    std::int64_t pubId = aeron_->addPublication(ctx_.controlRequestChannel(), ctx_.controlRequestStreamId());
     std::shared_ptr<Publication> publication;
     while (!(publication = aeron_->findPublication(pubId)))
     {
@@ -74,6 +75,29 @@ AeronArchive::AeronArchive(const Context & ctx) : ctx_(ctx), messageTimeoutNs_(c
 AeronArchive::AeronArchive(const Context & ctx, const ArchiveProxy & archiveProxy) : ctx_(ctx), archiveProxy_(std::make_unique<ArchiveProxy>(archiveProxy)) {
     // TODO
 }
+
+std::shared_ptr<AeronArchive> AeronArchive::connect()
+{
+    return AeronArchive::connect(Context());
+}
+
+std::shared_ptr<AeronArchive> AeronArchive::connect(const Context & ctx)
+{
+    return std::make_shared<AeronArchive>(ctx);
+}
+
+std::shared_ptr<AeronArchive> AeronArchive::asyncConnect()
+{
+    return AeronArchive::asyncConnect(Context());
+}
+
+std::shared_ptr<AeronArchive> AeronArchive::asyncConnect(const Context & ctx)
+{
+    throw std::runtime_error("not implemented");
+}
+
+// getters
+const Context & AeronArchive::context() const { return ctx_; }
 
 std::int64_t AeronArchive::awaitSessionOpened(std::int64_t correlationId)
 {

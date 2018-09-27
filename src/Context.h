@@ -72,6 +72,7 @@ public:
 private:
     Configuration cfg_;
     std::string aeronDirectoryName_;
+    std::shared_ptr<aeron::Context> aeronContext_;
     std::shared_ptr<aeron::Aeron> aeron_;
     std::string controlRequestChannel_;
 };

@@ -31,7 +31,9 @@ void Context::conclude() {
     }
 
     if (!aeron_) {
-        aeron_ = aeron::Aeron::connect(aeron::Context().aeronDir(aeronDirectoryName_));
+        aeronContext_ = std::make_shared<aeron::Context>(aeron::Context());
+        aeronContext_->aeronDir(aeronDirectoryName_);
+        aeron_ = aeron::Aeron::connect(*aeronContext_);
     }
 
     // TODO: rebuild it using a URI builder
