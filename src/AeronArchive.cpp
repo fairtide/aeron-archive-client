@@ -188,6 +188,41 @@ void AeronArchive::pollNextResponse(std::int64_t correlationId, const TimePoint&
     }
 }
 
+std::int64_t AeronArchive::pollForDescriptors(std::int64_t correlationId, std::int32_t recordCount, RecordingDescriptorConsumer&& consumer)
+{
+    auto deadline = Clock::now() + messageTimeoutNs_;
+    recordingDescriptorPoller_->reset(correlationId, recordCount, std::move(consumer));
+
+    while (true)
+    {
+        std::int32_t fragments = recordingDescriptorPoller_->poll();
+
+        if (recordingDescriptorPoller_->isDispatchComplete())
+        {
+            return recordCount - recordingDescriptorPoller_->remainingRecordCount();
+        }
+
+        aeron_->conductorAgentInvoker().invoke();
+
+        if (fragments > 0)
+        {
+            continue;
+        }
+
+        if (!recordingDescriptorPoller_->subscription()->isConnected())
+        {
+            throw new std::runtime_error("subscription to archive is not connected");
+        }
+
+        if (Clock::now() > deadline)
+        {
+            throw new std::runtime_error("awaiting recording descriptors: correlationId=" + std::to_string(correlationId));
+        }
+
+        idleStrategy_.idle();
+    }
+}
+
 }
 }
 

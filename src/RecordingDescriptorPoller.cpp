@@ -46,6 +46,21 @@ void RecordingDescriptorPoller::reset(std::int64_t expectedCorrelationId, std::i
     isDispatchComplete_ = false;
 }
 
+const std::shared_ptr<Subscription> & RecordingDescriptorPoller::subscription() const
+{
+    return subscription_;
+}
+
+std::int32_t RecordingDescriptorPoller::remainingRecordCount() const
+{
+    return remainingRecordCount_;
+}
+
+bool RecordingDescriptorPoller::isDispatchComplete() const
+{
+    return isDispatchComplete_;
+}
+
 ControlledPollAction RecordingDescriptorPoller::onFragment(concurrent::AtomicBuffer& buffer, util::index_t offset,
                                                            util::index_t length, Header& header) {
     codecs::MessageHeader hdr;
