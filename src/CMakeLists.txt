@@ -18,6 +18,7 @@ add_dependencies(generated_sbe_code sbe)
 set(SOURCE
     AeronArchive.h
     ArchiveProxy.cpp
+    ChannelUri.cpp
     Configuration.cpp
     Context.cpp
     ControlResponsePoller.cpp
@@ -27,6 +28,7 @@ set(SOURCE
 set(HEADERS
     AeronArchive.cpp
     ArchiveProxy.h
+    ChannelUri.h
     Configuration.h
     Context.h
     ControlResponsePoller.h
