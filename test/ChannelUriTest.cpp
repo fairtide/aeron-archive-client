@@ -26,7 +26,7 @@ using namespace aeron::archive;
 
 namespace {
 
-void assertParseWithParams(const std::string& uriStr, const std::unordered_map<std::string, std::string>& params) {
+void assertParseWithParams(const std::string& uriStr, std::unordered_map<std::string, std::string>&& params) {
     ChannelUri uri = ChannelUri::parse(uriStr);
 
     for (auto p : params) {

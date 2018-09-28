@@ -28,8 +28,11 @@ namespace archive {
 
 class ChannelUri
 {
+    using ParamsMap = std::unordered_map<std::string, std::string>;
+
 public:
-    ChannelUri();
+    ChannelUri(const std::string & prefix, const std::string & media, ParamsMap&& params);
+    ChannelUri(const std::string & media, ParamsMap&& params);
 
     // getters
     const std::string & scheme() const;
@@ -51,7 +54,7 @@ public:
 private:
     std::string prefix_;
     std::string media_;
-    std::unordered_map<std::string, std::string> params_;
+    ParamsMap params_;
     std::vector<std::string> tags_;
 };
 
