@@ -16,7 +16,7 @@ add_dependencies(generated_sbe_code sbe)
 
 # static library
 set(SOURCE
-    AeronArchive.h
+    AeronArchive.cpp
     ArchiveProxy.cpp
     ChannelUri.cpp
     Configuration.cpp
@@ -26,7 +26,8 @@ set(SOURCE
 )
 
 set(HEADERS
-    AeronArchive.cpp
+    AeronArchive.h
+    ArchiveException.h
     ArchiveProxy.h
     ChannelUri.h
     Configuration.h

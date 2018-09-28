@@ -36,6 +36,8 @@
 #include <io_aeron_archive_codecs/StopReplayRequest.h>
 #include <io_aeron_archive_codecs/TruncateRecordingRequest.h>
 
+#include "ArchiveException.h"
+
 namespace aeron {
 namespace archive {
 
@@ -46,6 +48,7 @@ public:
     ArchiveProxy(const std::shared_ptr<aeron::Publication>& publication, std::int64_t connectTimeoutNs,
                  std::int32_t retryAttempts)
         : publication_(publication)
+        , buffer_(&underlyingBuffer_[0], underlyingBuffer_.size())
         , connectTimeoutNs_(connectTimeoutNs)
         , retryAttempts_(retryAttempts) {}
 
@@ -252,14 +255,11 @@ private:
 
     void checkOfferResultAndThrow(std::int64_t result) {
         if (result == aeron::PUBLICATION_CLOSED) {
-            // TODO: ArchiveException
-            throw std::runtime_error("connection to the archive has been closed");
+            throw ArchiveException("connection to the archive has been closed", SOURCEINFO);
         } else if (result == aeron::NOT_CONNECTED) {
-            // TODO: ArchiveException
-            throw std::runtime_error("connection to the archive is no longer available");
+            throw ArchiveException("connection to the archive is no longer available", SOURCEINFO);
         } else if (result == aeron::MAX_POSITION_EXCEEDED) {
-            // TODO: ArchiveException
-            throw std::runtime_error("offer failed due to max position being reached");
+            throw ArchiveException("offer failed due to max position being reached", SOURCEINFO);
         }
     }
 
@@ -307,7 +307,10 @@ private:
 private:
     std::shared_ptr<aeron::Publication> publication_;
     concurrent::YieldingIdleStrategy idle_;
-    concurrent::AtomicBuffer buffer_;  // TODO: init
+    // TODO: size of the buffer - should it be configurable?
+    // should it be equal to the maximum size of all SBE messages?
+    std::array<std::uint8_t, 4096>  underlyingBuffer_;
+    concurrent::AtomicBuffer buffer_;
     const std::chrono::nanoseconds connectTimeoutNs_;
     const std::int32_t retryAttempts_;
 };

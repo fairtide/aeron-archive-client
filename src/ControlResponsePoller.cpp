@@ -97,6 +97,7 @@ ControlledPollAction ControlResponsePoller::onFragment(concurrent::AtomicBuffer&
         controlSessionId_ = msg.controlSessionId();
         correlationId_ = msg.correlationId();
         relevantId_ = msg.relevantId();
+        templateId_ = templateId;
         code_ = msg.code();
 
         if (code_ == codecs::ControlResponseCode::ERROR) {
@@ -104,7 +105,6 @@ ControlledPollAction ControlResponsePoller::onFragment(concurrent::AtomicBuffer&
         } else {
             errorMessage_ = "";
         }
-
     } else if (templateId != codecs::RecordingDescriptor::sbeTemplateId()) {
         throw std::runtime_error("unknown template id: " + std::to_string(templateId));
     }

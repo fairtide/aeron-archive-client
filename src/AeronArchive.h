@@ -22,6 +22,7 @@
 
 #include <io_aeron_archive_codecs/SourceLocation.h>
 
+#include "ArchiveException.h"
 #include "ArchiveProxy.h"
 #include "Context.h"
 #include "ControlResponsePoller.h"
@@ -51,60 +52,60 @@ public:
     //
     const std::string & pollForErrorResponse()
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     void checkForErrorResponse()
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     std::shared_ptr<aeron::Publication> addRecordedPublication(const std::string & channel, std::int32_t streamId)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     std::shared_ptr<aeron::ExclusivePublication> addRecordedExclusivePublication(const std::string & channel, std::int32_t streamId)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     std::int64_t startRecording(const std::string & channel, std::int32_t streamId,
             io::aeron::archive::codecs::SourceLocation::Value sourceLocation)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     void stopRecording(const std::string & channel, std::int32_t streamId)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     void stopRecording(const aeron::Publication& publication)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     void stopRecording(std::int64_t subscriptionId)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     std::int64_t startReplay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
             const std::string & replayChannel, std::int32_t replayStreamId)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     void stopReplay(std::int64_t replaySessionId)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     std::shared_ptr<aeron::Subscription> replay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
             const std::string & replayChannel, const std::string & replayStreamId)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     std::shared_ptr<aeron::Subscription> replay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
@@ -112,32 +113,32 @@ public:
             aeron::on_available_image_t&& availableImageHandler,
             aeron::on_unavailable_image_t&& unavailableImageHandler)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     std::int32_t listRecordings(std::int64_t fromRecordingsId, std::int32_t recordCount, RecordingDescriptorConsumer&& consumer)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     std::int32_t listRecordingsForUri(std::int64_t fromRecordingsId, std::int32_t recordCount, const std::string& channel, std::int32_t streamId, RecordingDescriptorConsumer&& consumer)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     std::int32_t listRecording(std::int64_t recordingId, RecordingDescriptorConsumer&& consumer)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     std::int64_t getRecordingPosition(std::int64_t recordingId)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
     void truncateRecording(std::int64_t recordingId, std::int64_t position)
     {
-        throw std::runtime_error("not implemented");
+        throw ArchiveException("not implemented", SOURCEINFO);
     }
 
 private:

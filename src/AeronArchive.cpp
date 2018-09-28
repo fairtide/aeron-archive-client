@@ -51,7 +51,6 @@ AeronArchive::AeronArchive(const Context & ctx) : ctx_(ctx), messageTimeoutNs_(c
     controlResponsePoller_ = std::make_unique<ControlResponsePoller>(subscription, FRAGMENT_LIMIT);
 
     // TODO: Java implementation uses exclusive publication
-    // std::int64_t pubId = aeron_->addExclusivePublication(ctx_.controlRequestChannel(), ctx_.controlRequestStreamId());
     std::int64_t pubId = aeron_->addPublication(ctx_.controlRequestChannel(), ctx_.controlRequestStreamId());
     std::shared_ptr<Publication> publication;
     while (!(publication = aeron_->findPublication(pubId)))
@@ -65,7 +64,7 @@ AeronArchive::AeronArchive(const Context & ctx) : ctx_(ctx), messageTimeoutNs_(c
     if (!archiveProxy_->connect(ctx_.controlResponseChannel(), ctx_.controlResponseStreamId(), correlationId,
                 aeron_->conductorAgentInvoker()))
     {
-        throw std::runtime_error("cannot connect to archive: " + ctx_.controlResponseChannel());
+        throw ArchiveException("cannot connect to archive: " + ctx_.controlResponseChannel(), SOURCEINFO);
     }
 
     controlSessionId_ = awaitSessionOpened(correlationId);
@@ -93,7 +92,7 @@ std::shared_ptr<AeronArchive> AeronArchive::asyncConnect()
 
 std::shared_ptr<AeronArchive> AeronArchive::asyncConnect(const Context & ctx)
 {
-    throw std::runtime_error("not implemented");
+    throw ArchiveException("not implemented", SOURCEINFO);
 }
 
 // getters
@@ -121,11 +120,11 @@ std::int64_t AeronArchive::awaitSessionOpened(std::int64_t correlationId)
         {
             if (code == codecs::ControlResponseCode::ERROR)
             {
-                throw std::runtime_error("unexpected response: " + controlResponsePoller_->errorMessage()
-                        + ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()));
+                throw ArchiveException("unexpected response: " + controlResponsePoller_->errorMessage()
+                        + ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()), SOURCEINFO);
             }
 
-            throw std::runtime_error("unexpected response: code=" + std::to_string(code));
+            throw ArchiveException("unexpected response: code=" + std::to_string(code), SOURCEINFO);
         }
 
         return controlResponsePoller_->controlSessionId();
@@ -134,11 +133,13 @@ std::int64_t AeronArchive::awaitSessionOpened(std::int64_t correlationId)
 
 void AeronArchive::awaitConnection(const TimePoint & deadline)
 {
-    while (controlResponsePoller_->subscription()->isConnected())
+    while (!controlResponsePoller_->subscription()->isConnected())
     {
         if (Clock::now() > deadline)
         {
-            throw new std::runtime_error("failed to establish response connection");
+            throw ArchiveException("failed to establish response connection on "
+                    + controlResponsePoller_->subscription()->channel() + ", stream id: "
+                    + std::to_string(controlResponsePoller_->subscription()->streamId()), SOURCEINFO);
         }
 
         idleStrategy_.idle();
@@ -166,12 +167,12 @@ std::int64_t AeronArchive::pollForResponse(std::int64_t correlationId)
         {
             if (code == codecs::ControlResponseCode::ERROR)
             {
-                throw std::runtime_error("response for correlation id: " + std::to_string(correlationId)
+                throw ArchiveException("response for correlation id: " + std::to_string(correlationId)
                         +", error: " + controlResponsePoller_->errorMessage()
-                        + ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()));
+                        + ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()), SOURCEINFO);
             }
 
-            throw std::runtime_error("unexpected response: code=" + std::to_string(code));
+            throw ArchiveException("unexpected response: code=" + std::to_string(code), SOURCEINFO);
         }
 
         if (controlResponsePoller_->correlationId() == correlationId)
@@ -199,12 +200,12 @@ void AeronArchive::pollNextResponse(std::int64_t correlationId, const TimePoint&
 
         if (!controlResponsePoller_->subscription()->isConnected())
         {
-            throw new std::runtime_error("subscription to archive is not connected");
+            throw ArchiveException("subscription to archive is not connected", SOURCEINFO);
         }
 
         if (Clock::now() > deadline)
         {
-            throw new std::runtime_error("awaiting response for correlationId=" + std::to_string(correlationId));
+            throw ArchiveException("awaiting response for correlationId=" + std::to_string(correlationId), SOURCEINFO);
         }
 
         idleStrategy_.idle();
@@ -235,12 +236,12 @@ std::int64_t AeronArchive::pollForDescriptors(std::int64_t correlationId, std::i
 
         if (!recordingDescriptorPoller_->subscription()->isConnected())
         {
-            throw new std::runtime_error("subscription to archive is not connected");
+            throw ArchiveException("subscription to archive is not connected", SOURCEINFO);
         }
 
         if (Clock::now() > deadline)
         {
-            throw new std::runtime_error("awaiting recording descriptors: correlationId=" + std::to_string(correlationId));
+            throw ArchiveException("awaiting recording descriptors: correlationId=" + std::to_string(correlationId), SOURCEINFO);
         }
 
         idleStrategy_.idle();

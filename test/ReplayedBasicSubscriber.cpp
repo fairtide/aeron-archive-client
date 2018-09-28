@@ -15,12 +15,28 @@
  */
 
 
-#include <AeronArchive.h>
+#include <atomic>
+#include <chrono>
+#include <signal.h>
+
 #include <boost/program_options.hpp>
+
+#include <AeronArchive.h>
+#include <ChannelUri.h>
 
 namespace po = boost::program_options;
 
 namespace {
+const std::chrono::duration<long, std::milli> IDLE_SLEEP_MS(1);
+const int FRAGMENTS_LIMIT = 10;
+
+std::atomic<bool> running { true };
+
+void sigIntHandler(int)
+{
+    running = false;
+}
+
 std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const std::string & channel, std::int32_t streamId) {
     std::int64_t lastRecordingId;
 
@@ -39,9 +55,22 @@ std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const 
 
     return lastRecordingId;
 }
+
+aeron::fragment_handler_t printStringMessage()
+{
+    return [&](const aeron::AtomicBuffer& buffer, aeron::util::index_t offset, aeron::util::index_t length, const aeron::Header& header)
+    {
+        std::cout << "Message to stream " << header.streamId() << " from session " << header.sessionId();
+        std::cout << "(" << length << "@" << offset << ") <<";
+        std::cout << std::string(reinterpret_cast<const char *>(buffer.buffer()) + offset, static_cast<std::size_t>(length)) << ">>" << std::endl;
+    };
+}
+
 }  // namespace
 
 int main(int argc, char* argv[]) {
+    ::signal(SIGINT, sigIntHandler);
+
     std::string channel;
     std::int32_t streamId;
     std::int32_t frameCountLimit;
@@ -74,8 +103,7 @@ int main(int argc, char* argv[]) {
         std::int64_t sessionId = archive->startReplay(recordingId, 0, std::numeric_limits<std::int64_t>::max(),
                 channel, replayStreamId);
 
-        // TODO: implement ChannelUri, we gonna need it
-        std::string channel = "ChannelUri::addSessionId" + std::to_string(sessionId);
+        std::string channel = aeron::archive::ChannelUri::addSessionId(channel, sessionId);
 
         std::int64_t subId = archive->context().aeron()->addSubscription(channel, replayStreamId);
         std::shared_ptr<aeron::Subscription> subscription;
@@ -84,13 +112,41 @@ int main(int argc, char* argv[]) {
             std::this_thread::yield();
         }
 
-        // TODO: implement subscriber loop
+        // polling loop
+        auto handler = printStringMessage();
+        aeron::concurrent::SleepingIdleStrategy idleStrategy(IDLE_SLEEP_MS);
+        bool reachedEos { false };
+
+        while (running && !reachedEos)
+        {
+            const int fragmentsRead = subscription->poll(handler, FRAGMENTS_LIMIT);
+
+            if (0 == fragmentsRead)
+            {
+                if (subscription->pollEndOfStreams([](aeron::Image & image)
+                    {
+                        std::cout << "EOS image correlationId=" << image.correlationId()
+                            << " sessionId=" << image.sessionId()
+                            << " from " << image.sourceIdentity() << '\n';
+                    }))
+                {
+                    reachedEos = true;
+                }
+            }
+
+            idleStrategy.idle(fragmentsRead);
+        }
+
+        std::cout << "Shutting down...\n";
+    } catch (const aeron::util::SourcedException& e) {
+        std::cerr << "aeron exception: " << e.what() << " (" << e.where() << ")\n";
+        return 1;
     } catch (const std::exception& e) {
         std::cerr << "exception: " << e.what() << '\n';
         return 1;
     }
 
-    std::cout << "exiting...\n";
+    std::cout << "done\n";
 
     return 0;
 }
