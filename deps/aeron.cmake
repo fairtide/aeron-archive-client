@@ -2,6 +2,7 @@
 set(Aeron_VERSION "1.11.1")
 set(Aeron_PREFIX ${THIRDPARTY_BINARY_DIR}/aeron)
 set(Aeron_SOURCE_DIR ${Aeron_PREFIX}/src/aeron)
+set(Aeron_CLIENT_LIB_PATH ${CMAKE_CFG_INTDIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}aeron_client${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 ExternalProject_Add(aeron_project
     GIT_REPOSITORY https://github.com/real-logic/aeron
@@ -9,20 +10,15 @@ ExternalProject_Add(aeron_project
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
     PREFIX "${Aeron_PREFIX}"
-    CMAKE_ARGS "-DAERON_TESTS=FALSE" "-DAERON_BUILD_SAMPLES=FALSE" "-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>"
-    INSTALL_COMMAND make install PREFIX=<INSTALL_DIR>
-    COMMAND "cp" "-r" "<SOURCE_DIR>/aeron-archive/src/main/resources" "<INSTALL_DIR>"
+    CMAKE_ARGS "-DAERON_TESTS=FALSE" "-DAERON_BUILD_SAMPLES=FALSE"
+    BUILD_BYPRODUCTS "${AERON_PREFIX}/src/aeron_project-build/${Aeron_CLIENT_LIB_PATH}"
+    INSTALL_COMMAND ""
 )
 
-ExternalProject_Get_Property(aeron_project install_dir)
+ExternalProject_Get_Property(aeron_project source_dir)
+ExternalProject_Get_Property(aeron_project binary_dir)
 
-set(Aeron_INCLUDE_DIR ${install_dir}/include CACHE STRING "Aeron include files")
-message(STATUS "Aeron includes: ${Aeron_INCLUDE_DIR}")
-
-set(Aeron_RESOURCES_DIR ${install_dir}/resources CACHE STRING "Aeron resources")
-message(STATUS "Aeron resources: ${Aeron_RESOURCES_DIR}")
-
-add_library(aeron_client STATIC IMPORTED GLOBAL)
-add_dependencies(aeron_client aeron_project)
-set_property(TARGET aeron_client PROPERTY IMPORTED_LOCATION ${install_dir}/lib/libaeron_client.a)
+set(Aeron_INCLUDE_DIR ${source_dir}/aeron-client/src/main/cpp CACHE STRING "Aeron include files")
+set(Aeron_RESOURCES_DIR ${source_dir}/aeron-archive/src/main/resources CACHE STRING "Aeron resources")
+set(Aeron_CLIENT_LIB ${binary_dir}/${Aeron_CLIENT_LIB_PATH} CACHE STRING "Aeron client library")
 

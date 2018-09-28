@@ -45,7 +45,7 @@ target_include_directories(aeron_archive_client
 )
 
 target_link_libraries(aeron_archive_client
-    aeron_client
+    ${Aeron_CLIENT_LIB}
     sbe
     ${CMAKE_THREAD_LIBS_INIT}
 )
