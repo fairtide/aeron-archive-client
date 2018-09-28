@@ -24,6 +24,7 @@ endfunction()
 
 # tests
 aeron_archive_test(ChannelUriTest ChannelUriTest.cpp)
+aeron_archive_test(ContextTest ContextTest.cpp)
 
 # sample apps
 aeron_archive_sample(RecordedBasicPublisher RecordedBasicPublisher.cpp)
