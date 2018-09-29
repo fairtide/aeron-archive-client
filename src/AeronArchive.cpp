@@ -20,6 +20,7 @@
 #include <io_aeron_archive_codecs/ControlResponse.h>
 
 #include "AeronArchive.h"
+#include "ChannelUri.h"
 
 namespace codecs = io::aeron::archive::codecs;
 
@@ -91,7 +92,18 @@ std::shared_ptr<AeronArchive> AeronArchive::asyncConnect(const Context& ctx) {
 const Context& AeronArchive::context() const { return ctx_; }
 
 //
-const std::string& AeronArchive::pollForErrorResponse() { throw ArchiveException("not implemented", SOURCEINFO); }
+boost::optional<std::string> AeronArchive::pollForErrorResponse() {
+    std::unique_lock<std::mutex> lock(lock_);
+
+    if (controlResponsePoller_->poll() != 0 && controlResponsePoller_->isPollComplete()) {
+        if (controlResponsePoller_->templateId() == codecs::ControlResponse::sbeTemplateId() &&
+            controlResponsePoller_->code() == codecs::ControlResponseCode::ERROR) {
+            return controlResponsePoller_->errorMessage();
+        }
+    }
+
+    return {};
+}
 
 void AeronArchive::checkForErrorResponse() { throw ArchiveException("not implemented", SOURCEINFO); }
 
@@ -106,16 +118,34 @@ std::shared_ptr<aeron::ExclusivePublication> AeronArchive::addRecordedExclusiveP
 }
 
 std::int64_t AeronArchive::startRecording(const std::string& channel, std::int32_t streamId,
-                                          io::aeron::archive::codecs::SourceLocation::Value sourceLocation) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+                                          codecs::SourceLocation::Value sourceLocation) {
+    std::unique_lock<std::mutex> lock(lock_);
+
+    std::int64_t correlationId = aeron_->nextCorrelationId();
+
+    if (!archiveProxy_->startRecording(channel, streamId, sourceLocation, correlationId, controlSessionId_)) {
+        throw ArchiveException("falied to send start recording request", SOURCEINFO);
+    }
+
+    return pollForResponse(correlationId);
 }
 
 void AeronArchive::stopRecording(const std::string& channel, std::int32_t streamId) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+    std::unique_lock<std::mutex> lock(lock_);
+
+    std::int64_t correlationId = aeron_->nextCorrelationId();
+
+    if (!archiveProxy_->stopRecording(channel, streamId, correlationId, controlSessionId_)) {
+        throw ArchiveException("falied to send stop recording request", SOURCEINFO);
+    }
+
+    pollForResponse(correlationId);
 }
 
 void AeronArchive::stopRecording(const aeron::Publication& publication) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+    const std::string& recordingChannel = ChannelUri::addSessionId(publication.channel(), publication.sessionId());
+
+    stopRecording(recordingChannel, publication.streamId());
 }
 
 void AeronArchive::stopRecording(std::int64_t subscriptionId) { throw ArchiveException("not implemented", SOURCEINFO); }

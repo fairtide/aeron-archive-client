@@ -20,6 +20,8 @@
 #include <chrono>
 #include <mutex>
 
+#include <boost/optional.hpp>
+
 #include <io_aeron_archive_codecs/SourceLocation.h>
 
 #include "ArchiveException.h"
@@ -50,7 +52,7 @@ public:
     const Context& context() const;
 
     //
-    const std::string& pollForErrorResponse();
+    boost::optional<std::string> pollForErrorResponse();
     void checkForErrorResponse();
 
     std::shared_ptr<aeron::Publication> addRecordedPublication(const std::string& channel, std::int32_t streamId);
