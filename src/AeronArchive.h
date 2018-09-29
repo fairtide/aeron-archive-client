@@ -50,73 +50,47 @@ public:
     const Context& context() const;
 
     //
-    const std::string& pollForErrorResponse() { throw ArchiveException("not implemented", SOURCEINFO); }
+    const std::string& pollForErrorResponse();
+    void checkForErrorResponse();
 
-    void checkForErrorResponse() { throw ArchiveException("not implemented", SOURCEINFO); }
-
-    std::shared_ptr<aeron::Publication> addRecordedPublication(const std::string& channel, std::int32_t streamId) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
-
+    std::shared_ptr<aeron::Publication> addRecordedPublication(const std::string& channel, std::int32_t streamId);
     std::shared_ptr<aeron::ExclusivePublication> addRecordedExclusivePublication(const std::string& channel,
-                                                                                 std::int32_t streamId) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+                                                                                 std::int32_t streamId);
 
     std::int64_t startRecording(const std::string& channel, std::int32_t streamId,
-                                io::aeron::archive::codecs::SourceLocation::Value sourceLocation) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+                                io::aeron::archive::codecs::SourceLocation::Value sourceLocation);
 
-    void stopRecording(const std::string& channel, std::int32_t streamId) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+    void stopRecording(const std::string& channel, std::int32_t streamId);
 
-    void stopRecording(const aeron::Publication& publication) { throw ArchiveException("not implemented", SOURCEINFO); }
+    void stopRecording(const aeron::Publication& publication);
 
-    void stopRecording(std::int64_t subscriptionId) { throw ArchiveException("not implemented", SOURCEINFO); }
+    void stopRecording(std::int64_t subscriptionId);
 
     std::int64_t startReplay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
-                             const std::string& replayChannel, std::int32_t replayStreamId) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+                             const std::string& replayChannel, std::int32_t replayStreamId);
 
-    void stopReplay(std::int64_t replaySessionId) { throw ArchiveException("not implemented", SOURCEINFO); }
+    void stopReplay(std::int64_t replaySessionId);
 
     std::shared_ptr<aeron::Subscription> replay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
-                                                const std::string& replayChannel, const std::string& replayStreamId) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+                                                const std::string& replayChannel, const std::string& replayStreamId);
 
     std::shared_ptr<aeron::Subscription> replay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
                                                 const std::string& replayChannel, const std::string& replayStreamId,
                                                 aeron::on_available_image_t&& availableImageHandler,
-                                                aeron::on_unavailable_image_t&& unavailableImageHandler) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+                                                aeron::on_unavailable_image_t&& unavailableImageHandler);
 
-    std::int32_t listRecordings(std::int64_t fromRecordingsId, std::int32_t recordCount,
-                                RecordingDescriptorConsumer&& consumer) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+    std::int32_t listRecordings(std::int64_t fromRecordingId, std::int32_t recordCount,
+                                RecordingDescriptorConsumer&& consumer);
 
-    std::int32_t listRecordingsForUri(std::int64_t fromRecordingsId, std::int32_t recordCount,
+    std::int32_t listRecordingsForUri(std::int64_t fromRecordingId, std::int32_t recordCount,
                                       const std::string& channel, std::int32_t streamId,
-                                      RecordingDescriptorConsumer&& consumer) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+                                      RecordingDescriptorConsumer&& consumer);
 
-    std::int32_t listRecording(std::int64_t recordingId, RecordingDescriptorConsumer&& consumer) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+    std::int32_t listRecording(std::int64_t recordingId, RecordingDescriptorConsumer&& consumer);
 
-    std::int64_t getRecordingPosition(std::int64_t recordingId) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+    std::int64_t getRecordingPosition(std::int64_t recordingId);
 
-    void truncateRecording(std::int64_t recordingId, std::int64_t position) {
-        throw ArchiveException("not implemented", SOURCEINFO);
-    }
+    void truncateRecording(std::int64_t recordingId, std::int64_t position);
 
 private:
     std::int64_t awaitSessionOpened(std::int64_t correlationId);

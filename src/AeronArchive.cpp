@@ -90,6 +90,98 @@ std::shared_ptr<AeronArchive> AeronArchive::asyncConnect(const Context& ctx) {
 // getters
 const Context& AeronArchive::context() const { return ctx_; }
 
+//
+const std::string& AeronArchive::pollForErrorResponse() { throw ArchiveException("not implemented", SOURCEINFO); }
+
+void AeronArchive::checkForErrorResponse() { throw ArchiveException("not implemented", SOURCEINFO); }
+
+std::shared_ptr<aeron::Publication> AeronArchive::addRecordedPublication(const std::string& channel,
+                                                                         std::int32_t streamId) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
+std::shared_ptr<aeron::ExclusivePublication> AeronArchive::addRecordedExclusivePublication(const std::string& channel,
+                                                                                           std::int32_t streamId) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
+std::int64_t AeronArchive::startRecording(const std::string& channel, std::int32_t streamId,
+                                          io::aeron::archive::codecs::SourceLocation::Value sourceLocation) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
+void AeronArchive::stopRecording(const std::string& channel, std::int32_t streamId) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
+void AeronArchive::stopRecording(const aeron::Publication& publication) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
+void AeronArchive::stopRecording(std::int64_t subscriptionId) { throw ArchiveException("not implemented", SOURCEINFO); }
+
+std::int64_t AeronArchive::startReplay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
+                                       const std::string& replayChannel, std::int32_t replayStreamId) {
+    std::unique_lock<std::mutex> lock(lock_);
+
+    std::int64_t correlationId = aeron_->nextCorrelationId();
+
+    if (!archiveProxy_->replay(recordingId, position, length, replayChannel, replayStreamId, correlationId,
+                               controlSessionId_)) {
+        throw ArchiveException("falied to send replay request", SOURCEINFO);
+    }
+
+    return pollForResponse(correlationId);
+}
+
+void AeronArchive::stopReplay(std::int64_t replaySessionId) { throw ArchiveException("not implemented", SOURCEINFO); }
+
+std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recordingId, std::int64_t position,
+                                                          std::int64_t length, const std::string& replayChannel,
+                                                          const std::string& replayStreamId) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
+std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recordingId, std::int64_t position,
+                                                          std::int64_t length, const std::string& replayChannel,
+                                                          const std::string& replayStreamId,
+                                                          aeron::on_available_image_t&& availableImageHandler,
+                                                          aeron::on_unavailable_image_t&& unavailableImageHandler) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
+std::int32_t AeronArchive::listRecordings(std::int64_t fromRecordingId, std::int32_t recordCount,
+                                          RecordingDescriptorConsumer&& consumer) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
+std::int32_t AeronArchive::listRecordingsForUri(std::int64_t fromRecordingId, std::int32_t recordCount,
+                                                const std::string& channel, std::int32_t streamId,
+                                                RecordingDescriptorConsumer&& consumer) {
+    std::unique_lock<std::mutex> lock(lock_);
+
+    std::int64_t correlationId = aeron_->nextCorrelationId();
+
+    if (!archiveProxy_->listRecordingsForUri(fromRecordingId, recordCount, channel, streamId, correlationId,
+                                             controlSessionId_)) {
+        throw ArchiveException("failed to send list recordings request", SOURCEINFO);
+    }
+
+    return pollForDescriptors(correlationId, recordCount, std::move(consumer));
+}
+
+std::int32_t AeronArchive::listRecording(std::int64_t recordingId, RecordingDescriptorConsumer&& consumer) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
+std::int64_t AeronArchive::getRecordingPosition(std::int64_t recordingId) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
+void AeronArchive::truncateRecording(std::int64_t recordingId, std::int64_t position) {
+    throw ArchiveException("not implemented", SOURCEINFO);
+}
+
 std::int64_t AeronArchive::awaitSessionOpened(std::int64_t correlationId) {
     auto deadline = Clock::now() + messageTimeoutNs_;
 
