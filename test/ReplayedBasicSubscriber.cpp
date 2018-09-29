@@ -15,9 +15,9 @@
  */
 
 
+#include <signal.h>
 #include <atomic>
 #include <chrono>
-#include <signal.h>
 
 #include <boost/program_options.hpp>
 
@@ -30,39 +30,37 @@ namespace {
 const std::chrono::duration<long, std::milli> IDLE_SLEEP_MS(1);
 const int FRAGMENTS_LIMIT = 10;
 
-std::atomic<bool> running { true };
+std::atomic<bool> running{true};
 
-void sigIntHandler(int)
-{
-    running = false;
-}
+void sigIntHandler(int) { running = false; }
 
-std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const std::string & channel, std::int32_t streamId) {
+std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const std::string& channel,
+                                   std::int32_t streamId) {
     std::int64_t lastRecordingId;
 
-    auto consumer = [&](long controlSessionId, long correlationId, long recordingId, long startTimestamp, long stopTimestamp, long startPosition, long stopPosition, int initialTermId, int segmentFileLength, int termBufferLength,
-                        int mtuLength, int sessionId, int streamId, const std::string& strippedChannel, const std::string& originalChannel, const std::string& sourceIdentity)
-    {
-        lastRecordingId = recordingId;
-    };
+    auto consumer = [&](long controlSessionId, long correlationId, long recordingId, long startTimestamp,
+                        long stopTimestamp, long startPosition, long stopPosition, int initialTermId,
+                        int segmentFileLength, int termBufferLength, int mtuLength, int sessionId, int streamId,
+                        const std::string& strippedChannel, const std::string& originalChannel,
+                        const std::string& sourceIdentity) { lastRecordingId = recordingId; };
 
     std::int32_t foundCount = archive.listRecordingsForUri(0, 100, channel, streamId, consumer);
 
-    if (!foundCount)
-    {
+    if (!foundCount) {
         throw std::runtime_error("no recordings found");
     }
 
     return lastRecordingId;
 }
 
-aeron::fragment_handler_t printStringMessage()
-{
-    return [&](const aeron::AtomicBuffer& buffer, aeron::util::index_t offset, aeron::util::index_t length, const aeron::Header& header)
-    {
+aeron::fragment_handler_t printStringMessage() {
+    return [&](const aeron::AtomicBuffer& buffer, aeron::util::index_t offset, aeron::util::index_t length,
+               const aeron::Header& header) {
         std::cout << "Message to stream " << header.streamId() << " from session " << header.sessionId();
         std::cout << "(" << length << "@" << offset << ") <<";
-        std::cout << std::string(reinterpret_cast<const char *>(buffer.buffer()) + offset, static_cast<std::size_t>(length)) << ">>" << std::endl;
+        std::cout << std::string(reinterpret_cast<const char*>(buffer.buffer()) + offset,
+                                 static_cast<std::size_t>(length))
+                  << ">>" << std::endl;
     };
 }
 
@@ -76,11 +74,10 @@ int main(int argc, char* argv[]) {
     std::int32_t frameCountLimit;
 
     po::options_description desc("Options");
-    desc.add_options()
-        ("help", "print help message")
-        ("channel", po::value<std::string>(&channel)->default_value("aeron:udp?endpoint=localhost:40123"))
-        ("stream-id", po::value<std::int32_t>(&streamId)->default_value(10))
-        ("frame-count-limit", po::value<std::int32_t>(&frameCountLimit)->default_value(20));
+    desc.add_options()("help", "print help message")(
+        "channel", po::value<std::string>(&channel)->default_value("aeron:udp?endpoint=localhost:40123"))(
+        "stream-id", po::value<std::int32_t>(&streamId)->default_value(10))(
+        "frame-count-limit", po::value<std::int32_t>(&frameCountLimit)->default_value(20));
 
     try {
         po::variables_map vm;
@@ -100,36 +97,30 @@ int main(int argc, char* argv[]) {
         auto archive = aeron::archive::AeronArchive::connect();
 
         std::int64_t recordingId = findLatestRecordingId(*archive, channel, streamId);
-        std::int64_t sessionId = archive->startReplay(recordingId, 0, std::numeric_limits<std::int64_t>::max(),
-                channel, replayStreamId);
+        std::int64_t sessionId =
+            archive->startReplay(recordingId, 0, std::numeric_limits<std::int64_t>::max(), channel, replayStreamId);
 
         std::string channel = aeron::archive::ChannelUri::addSessionId(channel, sessionId);
 
         std::int64_t subId = archive->context().aeron()->addSubscription(channel, replayStreamId);
         std::shared_ptr<aeron::Subscription> subscription;
-        while (!(subscription = archive->context().aeron()->findSubscription(subId)))
-        {
+        while (!(subscription = archive->context().aeron()->findSubscription(subId))) {
             std::this_thread::yield();
         }
 
         // polling loop
         auto handler = printStringMessage();
         aeron::concurrent::SleepingIdleStrategy idleStrategy(IDLE_SLEEP_MS);
-        bool reachedEos { false };
+        bool reachedEos{false};
 
-        while (running && !reachedEos)
-        {
+        while (running && !reachedEos) {
             const int fragmentsRead = subscription->poll(handler, FRAGMENTS_LIMIT);
 
-            if (0 == fragmentsRead)
-            {
-                if (subscription->pollEndOfStreams([](aeron::Image & image)
-                    {
+            if (0 == fragmentsRead) {
+                if (subscription->pollEndOfStreams([](aeron::Image& image) {
                         std::cout << "EOS image correlationId=" << image.correlationId()
-                            << " sessionId=" << image.sessionId()
-                            << " from " << image.sourceIdentity() << '\n';
-                    }))
-                {
+                                  << " sessionId=" << image.sessionId() << " from " << image.sourceIdentity() << '\n';
+                    })) {
                     reachedEos = true;
                 }
             }

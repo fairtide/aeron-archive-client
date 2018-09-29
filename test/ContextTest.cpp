@@ -33,4 +33,3 @@ TEST(ContextTest, shouldSetControlRequestChannel) {
     EXPECT_TRUE(uri.get("mtu"));
     EXPECT_TRUE(uri.get("sparse"));
 }
-

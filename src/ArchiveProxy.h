@@ -309,7 +309,7 @@ private:
     concurrent::YieldingIdleStrategy idle_;
     // TODO: size of the buffer - should it be configurable?
     // should it be equal to the maximum size of all SBE messages?
-    std::array<std::uint8_t, 4096>  underlyingBuffer_;
+    std::array<std::uint8_t, 4096> underlyingBuffer_;
     concurrent::AtomicBuffer buffer_;
     const std::chrono::nanoseconds connectTimeoutNs_;
     const std::int32_t retryAttempts_;

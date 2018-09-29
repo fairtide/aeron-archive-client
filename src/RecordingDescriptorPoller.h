@@ -38,7 +38,7 @@ public:
     void reset(std::int64_t expectedCorrelationId, std::int32_t remainingRecordCount,
                RecordingDescriptorConsumer&& consumer);
 
-    const std::shared_ptr<aeron::Subscription> & subscription() const;
+    const std::shared_ptr<aeron::Subscription>& subscription() const;
     std::int32_t remainingRecordCount() const;
     bool isDispatchComplete() const;
 

@@ -1,3 +1,4 @@
+#include "ArchiveProxy.h"
 /*
  * Copyright 2018 Fairtide Pte. Ltd.
  *
@@ -14,6 +15,4 @@
  * limitations under the License.
  */
 
-
-#include "ArchiveProxy.h"
 

@@ -15,24 +15,23 @@
  */
 
 
-#include "ChannelUri.h"
 #include "Context.h"
+#include "ChannelUri.h"
 
 namespace {
 // TODO: CommonContext
 const std::string TERM_LENGTH_PARAM_NAME = "term-length";
 const std::string MTU_LENGTH_PARAM_NAME = "mtu";
 const std::string SPARSE_PARAM_NAME = "sparse";
-}
+}  // namespace
 
 namespace aeron {
 namespace archive {
 
-Context::Context() {
-    controlRequestChannel(cfg_.controlChannel);
-}
+Context::Context() { controlRequestChannel(cfg_.controlChannel); }
 
-Context::Context(const Configuration& cfg) : cfg_(cfg) {
+Context::Context(const Configuration& cfg)
+    : cfg_(cfg) {
     controlRequestChannel(cfg_.controlChannel);
 }
 

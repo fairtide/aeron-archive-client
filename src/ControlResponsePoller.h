@@ -36,7 +36,7 @@ public:
     std::int64_t relevantId() const;
     std::int64_t templateId() const;
     io::aeron::archive::codecs::ControlResponseCode::Value code() const;
-    const std::string & errorMessage() const;
+    const std::string& errorMessage() const;
     bool isPollComplete() const;
 
     std::int32_t poll();

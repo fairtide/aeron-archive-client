@@ -44,7 +44,9 @@ void assertParseWithMediaAndPrefix(const std::string& uriStr, const std::string&
     EXPECT_EQ(uri.media(), media);
 }
 
-void assertParseWithMedia(const std::string& uri, const std::string& media) { assertParseWithMediaAndPrefix(uri, "", media); }
+void assertParseWithMedia(const std::string& uri, const std::string& media) {
+    assertParseWithMediaAndPrefix(uri, "", media);
+}
 
 void assertInvalid(const std::string& str) {
     EXPECT_THROW({ ChannelUri::parse(str); }, aeron::util::IllegalArgumentException);
@@ -76,10 +78,7 @@ TEST(ChannelUriTest, shouldParseWithSingleParameter) {
 
 TEST(ChannelUriTest, shouldParseWithMultipleParameters) {
     assertParseWithParams("aeron:udp?endpoint=224.10.9.8|port=4567|interface=192.168.0.3|ttl=16",
-            {{"endpoint", "224.10.9.8"},
-             {"port", "4567"},
-             {"interface", "192.168.0.3"},
-             {"ttl", "16"}});
+                          {{"endpoint", "224.10.9.8"}, {"port", "4567"}, {"interface", "192.168.0.3"}, {"ttl", "16"}});
 }
 
 TEST(ChannelUriTest, shouldAllowReturnDefaultIfParamNotSpecified) {

@@ -32,45 +32,21 @@ ControlResponsePoller::ControlResponsePoller(const std::shared_ptr<Subscription>
     , fragmentAssembler_([this](concurrent::AtomicBuffer& buffer, util::index_t offset, util::index_t length,
                                 Header& header) { return onFragment(buffer, offset, length, header); }) {}
 
-const std::shared_ptr<Subscription> ControlResponsePoller::subscription() const
-{
-    return subscription_;
-}
+const std::shared_ptr<Subscription> ControlResponsePoller::subscription() const { return subscription_; }
 
-std::int64_t ControlResponsePoller::controlSessionId() const
-{
-    return controlSessionId_;
-}
+std::int64_t ControlResponsePoller::controlSessionId() const { return controlSessionId_; }
 
-std::int64_t ControlResponsePoller::correlationId() const
-{
-    return correlationId_;
-}
+std::int64_t ControlResponsePoller::correlationId() const { return correlationId_; }
 
-std::int64_t ControlResponsePoller::relevantId() const
-{
-    return relevantId_;
-}
+std::int64_t ControlResponsePoller::relevantId() const { return relevantId_; }
 
-std::int64_t ControlResponsePoller::templateId() const
-{
-    return templateId_;
-}
+std::int64_t ControlResponsePoller::templateId() const { return templateId_; }
 
-codecs::ControlResponseCode::Value ControlResponsePoller::code() const
-{
-    return code_;
-}
+codecs::ControlResponseCode::Value ControlResponsePoller::code() const { return code_; }
 
-const std::string & ControlResponsePoller::errorMessage() const
-{
-    return errorMessage_;
-}
+const std::string& ControlResponsePoller::errorMessage() const { return errorMessage_; }
 
-bool ControlResponsePoller::isPollComplete() const
-{
-    return isPollComplete_;
-}
+bool ControlResponsePoller::isPollComplete() const { return isPollComplete_; }
 
 std::int32_t ControlResponsePoller::poll() {
     controlSessionId_ = -1;

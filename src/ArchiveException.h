@@ -23,6 +23,5 @@ namespace aeron {
 namespace archive {
 
 DECLARE_SOURCED_EXCEPTION(ArchiveException);
-
 }
-}
+}  // namespace aeron

@@ -26,27 +26,26 @@
 namespace aeron {
 namespace archive {
 
-class ChannelUri
-{
+class ChannelUri {
     using ParamsMap = std::unordered_map<std::string, std::string>;
 
 public:
-    ChannelUri(const std::string & prefix, const std::string & media, ParamsMap&& params);
-    ChannelUri(const std::string & media, ParamsMap&& params);
+    ChannelUri(const std::string& prefix, const std::string& media, ParamsMap&& params);
+    ChannelUri(const std::string& media, ParamsMap&& params);
 
     // getters
-    const std::string & scheme() const;
-    const std::string & prefix() const;
-    const std::string & media() const;
+    const std::string& scheme() const;
+    const std::string& prefix() const;
+    const std::string& media() const;
 
-    void put(const std::string & key, const std::string & value);
-    boost::optional<std::string> get(const std::string & key);
-    boost::optional<std::string> get(const std::string & key, const std::string & defaultValue);
+    void put(const std::string& key, const std::string& value);
+    boost::optional<std::string> get(const std::string& key);
+    boost::optional<std::string> get(const std::string& key, const std::string& defaultValue);
 
     std::string toString() const;
 
-    static ChannelUri parse(const std::string & channel);
-    static std::string addSessionId(const std::string & channel, std::int32_t sessionId);
+    static ChannelUri parse(const std::string& channel);
+    static std::string addSessionId(const std::string& channel, std::int32_t sessionId);
 
     // statics
     static const std::string AERON_SCHEME;
@@ -58,5 +57,5 @@ private:
     std::vector<std::string> tags_;
 };
 
-}
-}
+}  // namespace archive
+}  // namespace aeron
