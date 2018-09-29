@@ -134,8 +134,6 @@ ChannelUri ChannelUri::parse(const std::string& str) {
 
         switch (state) {
             case State::MEDIA:
-                // TODO: find '=', adjust position and assign a range from str to the key
-                // like find_first_of
                 switch (c) {
                     case '?':
                         media = buffer;
@@ -155,7 +153,6 @@ ChannelUri ChannelUri::parse(const std::string& str) {
 
             case State::PARAMS_KEY:
                 switch (c) {
-                        // TODO: find '=', adjust position and assign a range from str to the key
                     case '=':
                         key = buffer;
                         buffer.clear();
