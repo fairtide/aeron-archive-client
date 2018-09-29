@@ -131,6 +131,9 @@ int main(int argc, char* argv[]) {
         }
 
         std::cout << "Shutting down...\n";
+    } catch (const aeron::archive::ArchiveException& e) {
+        std::cerr << "aeron archive exception: " << e.what() << " (" << e.where() << ")\n" << e.stackTrace() << '\n';
+        return 1;
     } catch (const aeron::util::SourcedException& e) {
         std::cerr << "aeron exception: " << e.what() << " (" << e.where() << ")\n";
         return 1;

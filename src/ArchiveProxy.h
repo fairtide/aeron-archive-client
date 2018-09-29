@@ -253,16 +253,6 @@ private:
         return msg.wrapForEncode((char*)buffer_.buffer(), offset + hdr.encodedLength(), buffer_.capacity());
     }
 
-    void checkOfferResultAndThrow(std::int64_t result) {
-        if (result == aeron::PUBLICATION_CLOSED) {
-            throw ArchiveException("connection to the archive has been closed", SOURCEINFO);
-        } else if (result == aeron::NOT_CONNECTED) {
-            throw ArchiveException("connection to the archive is no longer available", SOURCEINFO);
-        } else if (result == aeron::MAX_POSITION_EXCEEDED) {
-            throw ArchiveException("offer failed due to max position being reached", SOURCEINFO);
-        }
-    }
-
     bool offer(std::int32_t length) {
         std::int32_t attempts = retryAttempts_;
         while (true) {
@@ -271,7 +261,13 @@ private:
                 return true;
             }
 
-            checkOfferResultAndThrow(result);
+            if (result == aeron::PUBLICATION_CLOSED) {
+                throw ArchiveException("connection to the archive has been closed", SOURCEINFO);
+            } else if (result == aeron::NOT_CONNECTED) {
+                throw ArchiveException("connection to the archive is no longer available", SOURCEINFO);
+            } else if (result == aeron::MAX_POSITION_EXCEEDED) {
+                throw ArchiveException("offer failed due to max position being reached", SOURCEINFO);
+            }
 
             if (--attempts <= 0) {
                 return false;
@@ -289,7 +285,11 @@ private:
                 return true;
             }
 
-            checkOfferResultAndThrow(result);
+            if (result == aeron::PUBLICATION_CLOSED) {
+                throw ArchiveException("connection to the archive has been closed", SOURCEINFO);
+            } else if (result == aeron::MAX_POSITION_EXCEEDED) {
+                throw ArchiveException("offer failed due to max position being reached", SOURCEINFO);
+            }
 
             if (std::chrono::high_resolution_clock::now() > deadline) {
                 return false;

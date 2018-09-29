@@ -15,22 +15,23 @@
  */
 
 
-#pragma once
+#include <boost/stacktrace.hpp>
 
-#include <util/Exceptions.h>
+#include <sstream>
+
+#include "ArchiveException.h"
 
 namespace aeron {
 namespace archive {
 
-class ArchiveException : public aeron::util::SourcedException {
-public:
-    ArchiveException(const std::string& what, const std::string& function, const std::string& where);
+ArchiveException::ArchiveException(const std::string& what, const std::string& function, const std::string& where)
+    : aeron::util::SourcedException(what, function, where) {
+    std::ostringstream ss;
+    ss << boost::stacktrace::stacktrace();
+    stackTrace_ = ss.str();
+}
 
-    const std::string& stackTrace() const;
-
-private:
-    std::string stackTrace_;
-};
+const std::string& ArchiveException::stackTrace() const { return stackTrace_; }
 
 }  // namespace archive
 }  // namespace aeron
