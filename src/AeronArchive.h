@@ -74,10 +74,10 @@ public:
     void stopReplay(std::int64_t replaySessionId);
 
     std::shared_ptr<aeron::Subscription> replay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
-                                                const std::string& replayChannel, const std::string& replayStreamId);
+                                                const std::string& replayChannel, std::int32_t replayStreamId);
 
     std::shared_ptr<aeron::Subscription> replay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
-                                                const std::string& replayChannel, const std::string& replayStreamId,
+                                                const std::string& replayChannel, std::int32_t replayStreamId,
                                                 aeron::on_available_image_t&& availableImageHandler,
                                                 aeron::on_unavailable_image_t&& unavailableImageHandler);
 
@@ -102,6 +102,8 @@ private:
     void pollNextResponse(std::int64_t correlationId, const TimePoint& deadline);
     std::int64_t pollForDescriptors(std::int64_t correlationId, std::int32_t recordCount,
                                     RecordingDescriptorConsumer&& consumer);
+
+    std::int64_t callAndPollForResponse(std::function<bool (std::int64_t)>&& f, const char * request);
 
 private:
     Context ctx_;

@@ -119,27 +119,18 @@ std::shared_ptr<aeron::ExclusivePublication> AeronArchive::addRecordedExclusiveP
 
 std::int64_t AeronArchive::startRecording(const std::string& channel, std::int32_t streamId,
                                           codecs::SourceLocation::Value sourceLocation) {
-    std::unique_lock<std::mutex> lock(lock_);
-
-    std::int64_t correlationId = aeron_->nextCorrelationId();
-
-    if (!archiveProxy_->startRecording(channel, streamId, sourceLocation, correlationId, controlSessionId_)) {
-        throw ArchiveException("falied to send start recording request", SOURCEINFO);
-    }
-
-    return pollForResponse(correlationId);
+    return callAndPollForResponse([&](std::int64_t correlationId)
+    {
+        return archiveProxy_->startRecording(channel, streamId, sourceLocation, correlationId, controlSessionId_);
+    }, "start recording");
 }
 
 void AeronArchive::stopRecording(const std::string& channel, std::int32_t streamId) {
-    std::unique_lock<std::mutex> lock(lock_);
-
-    std::int64_t correlationId = aeron_->nextCorrelationId();
-
-    if (!archiveProxy_->stopRecording(channel, streamId, correlationId, controlSessionId_)) {
-        throw ArchiveException("falied to send stop recording request", SOURCEINFO);
-    }
-
-    pollForResponse(correlationId);
+    callAndPollForResponse([&](std::int64_t correlationId)
+    {
+        return this->archiveProxy_->stopRecording(channel, streamId, correlationId,
+                controlSessionId_);
+    }, "stop recording");
 }
 
 void AeronArchive::stopRecording(const aeron::Publication& publication) {
@@ -148,36 +139,63 @@ void AeronArchive::stopRecording(const aeron::Publication& publication) {
     stopRecording(recordingChannel, publication.streamId());
 }
 
-void AeronArchive::stopRecording(std::int64_t subscriptionId) { throw ArchiveException("not implemented", SOURCEINFO); }
+void AeronArchive::stopRecording(std::int64_t subscriptionId) {
+    callAndPollForResponse([&](std::int64_t correlationId)
+    {
+        return this->archiveProxy_->stopRecording(subscriptionId, correlationId,
+                controlSessionId_);
+    }, "stop recording");
+}
 
 std::int64_t AeronArchive::startReplay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
                                        const std::string& replayChannel, std::int32_t replayStreamId) {
-    std::unique_lock<std::mutex> lock(lock_);
-
-    std::int64_t correlationId = aeron_->nextCorrelationId();
-
-    if (!archiveProxy_->replay(recordingId, position, length, replayChannel, replayStreamId, correlationId,
-                               controlSessionId_)) {
-        throw ArchiveException("falied to send replay request", SOURCEINFO);
-    }
-
-    return pollForResponse(correlationId);
+    return callAndPollForResponse([&](std::int64_t correlationId)
+    {
+        return archiveProxy_->replay(recordingId, position, length, replayChannel, replayStreamId, correlationId,
+                               controlSessionId_);
+    }, "start replay");
 }
 
-void AeronArchive::stopReplay(std::int64_t replaySessionId) { throw ArchiveException("not implemented", SOURCEINFO); }
-
-std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recordingId, std::int64_t position,
-                                                          std::int64_t length, const std::string& replayChannel,
-                                                          const std::string& replayStreamId) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+void AeronArchive::stopReplay(std::int64_t replaySessionId) {
+    callAndPollForResponse([&](std::int64_t correlationId)
+    {
+        return this->archiveProxy_->stopReplay(replaySessionId, correlationId, controlSessionId_);
+    }, "stop replay");
 }
 
 std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recordingId, std::int64_t position,
                                                           std::int64_t length, const std::string& replayChannel,
-                                                          const std::string& replayStreamId,
+                                                          std::int32_t replayStreamId) {
+    return replay(recordingId, position, length, replayChannel, replayStreamId,
+            defaultOnAvailableImageHandler, defaultOnUnavailableImageHandler);
+}
+
+std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recordingId, std::int64_t position,
+                                                          std::int64_t length, const std::string& replayChannel,
+                                                          std::int32_t replayStreamId,
                                                           aeron::on_available_image_t&& availableImageHandler,
                                                           aeron::on_unavailable_image_t&& unavailableImageHandler) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+    ChannelUri replayChannelUri = ChannelUri::parse(replayChannel);
+
+    std::int32_t replaySessionId = static_cast<std::int32_t>(
+            callAndPollForResponse([&](std::int64_t correlationId)
+            {
+                return this->archiveProxy_->replay(recordingId, position, length,
+                        replayChannel, replayStreamId, correlationId, controlSessionId_);
+            }, "replay"));
+
+    replayChannelUri.put("session-id", std::to_string(replaySessionId));
+
+    // wait for the subscription to become available
+    std::int64_t subId = aeron_->addSubscription(replayChannelUri.toString(), replayStreamId,
+            std::move(availableImageHandler), std::move(unavailableImageHandler));
+
+    std::shared_ptr<Subscription> subscription;
+    while (!(subscription = aeron_->findSubscription(subId))) {
+        std::this_thread::yield();
+    }
+
+    return subscription;
 }
 
 std::int32_t AeronArchive::listRecordings(std::int64_t fromRecordingId, std::int32_t recordCount,
@@ -197,6 +215,7 @@ std::int32_t AeronArchive::listRecordingsForUri(std::int64_t fromRecordingId, st
         throw ArchiveException("failed to send list recordings request", SOURCEINFO);
     }
 
+    // TODO: callAndPollForDescriptors
     return pollForDescriptors(correlationId, recordCount, std::move(consumer));
 }
 
@@ -339,6 +358,19 @@ std::int64_t AeronArchive::pollForDescriptors(std::int64_t correlationId, std::i
 
         idleStrategy_.idle();
     }
+}
+
+std::int64_t AeronArchive::callAndPollForResponse(std::function<bool (std::int64_t)>&& f, const char * request)
+{
+    std::unique_lock<std::mutex> lock(lock_);
+
+    std::int64_t correlationId = aeron_->nextCorrelationId();
+
+    if (!f(correlationId)) {
+        throw ArchiveException(std::string(request) + ": failed to send", SOURCEINFO);
+    }
+
+    return pollForResponse(correlationId);
 }
 
 }  // namespace archive

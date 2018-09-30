@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
             //
             auto errorMessage = archive->pollForErrorResponse();
             if (errorMessage) {
-                throw new util::IllegalStateException(*errorMessage, SOURCEINFO);
+                throw util::IllegalStateException(*errorMessage, SOURCEINFO);
             }
 
             ::sleep(1);
