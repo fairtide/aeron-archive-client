@@ -200,35 +200,45 @@ std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recording
 
 std::int32_t AeronArchive::listRecordings(std::int64_t fromRecordingId, std::int32_t recordCount,
                                           RecordingDescriptorConsumer&& consumer) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+    return callAndPollForDescriptors([&](std::int64_t correlationId)
+    {
+        return this->archiveProxy_->listRecordings(fromRecordingId, recordCount,
+                correlationId, controlSessionId_);
+    }, recordCount, std::move(consumer), "list recordings");
 }
 
 std::int32_t AeronArchive::listRecordingsForUri(std::int64_t fromRecordingId, std::int32_t recordCount,
                                                 const std::string& channel, std::int32_t streamId,
                                                 RecordingDescriptorConsumer&& consumer) {
-    std::unique_lock<std::mutex> lock(lock_);
-
-    std::int64_t correlationId = aeron_->nextCorrelationId();
-
-    if (!archiveProxy_->listRecordingsForUri(fromRecordingId, recordCount, channel, streamId, correlationId,
-                                             controlSessionId_)) {
-        throw ArchiveException("failed to send list recordings request", SOURCEINFO);
-    }
-
-    // TODO: callAndPollForDescriptors
-    return pollForDescriptors(correlationId, recordCount, std::move(consumer));
+    return callAndPollForDescriptors([&](std::int64_t correlationId)
+    {
+        return archiveProxy_->listRecordingsForUri(fromRecordingId, recordCount, channel, streamId, correlationId,
+                                             controlSessionId_);
+    }, recordCount, std::move(consumer), "list recordings for URI");
 }
 
 std::int32_t AeronArchive::listRecording(std::int64_t recordingId, RecordingDescriptorConsumer&& consumer) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+    return callAndPollForDescriptors([&](std::int64_t correlationId)
+    {
+        return this->archiveProxy_->listRecording(recordingId,
+                correlationId, controlSessionId_);
+    }, 1, std::move(consumer), "list recording");
 }
 
 std::int64_t AeronArchive::getRecordingPosition(std::int64_t recordingId) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+    return callAndPollForResponse([&](std::int64_t correlationId)
+    {
+        return this->archiveProxy_->getRecordingPosition(recordingId, correlationId,
+                controlSessionId_);
+    }, "get recording position");
 }
 
 void AeronArchive::truncateRecording(std::int64_t recordingId, std::int64_t position) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+    callAndPollForResponse([&](std::int64_t correlationId)
+    {
+        return this->archiveProxy_->truncateRecording(recordingId, position, correlationId,
+                controlSessionId_);
+    }, "truncate recording");
 }
 
 std::int64_t AeronArchive::awaitSessionOpened(std::int64_t correlationId) {
@@ -371,6 +381,19 @@ std::int64_t AeronArchive::callAndPollForResponse(std::function<bool (std::int64
     }
 
     return pollForResponse(correlationId);
+}
+
+std::int64_t AeronArchive::callAndPollForDescriptors(std::function<bool (std::int64_t)>&& f, std::int32_t recordCount, RecordingDescriptorConsumer&& consumer, const char * request)
+{
+    std::unique_lock<std::mutex> lock(lock_);
+
+    std::int64_t correlationId = aeron_->nextCorrelationId();
+
+    if (!f(correlationId)) {
+        throw ArchiveException(std::string(request) + ": failed to send", SOURCEINFO);
+    }
+
+    return pollForDescriptors(correlationId, recordCount, std::move(consumer));
 }
 
 }  // namespace archive

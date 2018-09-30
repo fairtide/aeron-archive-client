@@ -104,6 +104,7 @@ private:
                                     RecordingDescriptorConsumer&& consumer);
 
     std::int64_t callAndPollForResponse(std::function<bool (std::int64_t)>&& f, const char * request);
+    std::int64_t callAndPollForDescriptors(std::function<bool (std::int64_t)>&& f, std::int32_t recordCount, RecordingDescriptorConsumer&& consumer, const char * request);
 
 private:
     Context ctx_;
