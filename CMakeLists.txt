@@ -12,4 +12,5 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DDISABLE_BOUNDS_CHECKS"
 add_subdirectory(deps)
 add_subdirectory(src)
 add_subdirectory(test)
+add_subdirectory(samples)
 
