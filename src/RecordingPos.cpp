@@ -40,7 +40,9 @@ std::int32_t RecordingPos::findCounterIdBySession(concurrent::CountersReader& co
         if (countersReader.getCounterState(i) == concurrent::CountersReader::RECORD_ALLOCATED) {
             std::int32_t recordOffset = concurrent::CountersReader::metadataOffset(i);
 
-            if (buffer.getInt32(recordOffset + TYPE_ID_OFFSET) == RECORDING_POSITION_TYPE_ID && buffer.getInt32(recordOffset + concurrent::CountersReader::KEY_OFFSET + SESSION_ID_OFFSET) == sessionId) {
+            if (buffer.getInt32(recordOffset + TYPE_ID_OFFSET) == RECORDING_POSITION_TYPE_ID &&
+                buffer.getInt32(recordOffset + concurrent::CountersReader::KEY_OFFSET + SESSION_ID_OFFSET) ==
+                    sessionId) {
                 return i;
             }
         }
@@ -63,7 +65,10 @@ std::int64_t RecordingPos::getRecordingId(concurrent::CountersReader& countersRe
     return -1;
 }
 
-bool RecordingPos::isActive(concurrent::CountersReader& countersReader, std::int32_t counterId, std::int64_t recordingId) { return RecordingPos::getRecordingId(countersReader, counterId) == recordingId; }
+bool RecordingPos::isActive(concurrent::CountersReader& countersReader, std::int32_t counterId,
+                            std::int64_t recordingId) {
+    return RecordingPos::getRecordingId(countersReader, counterId) == recordingId;
+}
 
 }  // namespace archive
 }  // namespace aeron

@@ -34,9 +34,7 @@ static const std::int32_t DEFAULT_RETRY_ATTEMPTS = 3;
 namespace aeron {
 namespace archive {
 
-AeronArchive::AeronArchive(const Context& ctx)
-    : ctx_(ctx)
-    , messageTimeoutNs_(ctx_.messageTimeoutNs()) {
+AeronArchive::AeronArchive(const Context& ctx) : ctx_(ctx), messageTimeoutNs_(ctx_.messageTimeoutNs()) {
     // TODO: I think it's better to pass a fully prepared context to the constructor
     ctx_.conclude();
 
@@ -73,8 +71,7 @@ AeronArchive::AeronArchive(const Context& ctx)
 }
 
 AeronArchive::AeronArchive(const Context& ctx, const ArchiveProxy& archiveProxy)
-    : ctx_(ctx)
-    , archiveProxy_(std::make_unique<ArchiveProxy>(archiveProxy)) {
+    : ctx_(ctx), archiveProxy_(std::make_unique<ArchiveProxy>(archiveProxy)) {
     // TODO
 }
 
@@ -105,15 +102,15 @@ boost::optional<std::string> AeronArchive::pollForErrorResponse() {
     return {};
 }
 
-void AeronArchive::checkForErrorResponse()
-{
+void AeronArchive::checkForErrorResponse() {
     std::unique_lock<std::mutex> lock(lock_);
 
     if (controlResponsePoller_->poll() != 0 && controlResponsePoller_->isPollComplete()) {
         if (controlResponsePoller_->templateId() == codecs::ControlResponse::sbeTemplateId() &&
             controlResponsePoller_->code() == codecs::ControlResponseCode::ERROR) {
-            throw ArchiveException("error: " + controlResponsePoller_->errorMessage()
-                    + ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()), SOURCEINFO);
+            throw ArchiveException("error: " + controlResponsePoller_->errorMessage() +
+                                       ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()),
+                                   SOURCEINFO);
         }
     }
 }
@@ -124,17 +121,17 @@ std::shared_ptr<aeron::Publication> AeronArchive::addRecordedPublication(const s
 
     std::int64_t pubId = aeron_->addPublication(channel, streamId);
     std::shared_ptr<aeron::Publication> publication;
-    while (!(publication = aeron_->findPublication(pubId)))
-    {
+    while (!(publication = aeron_->findPublication(pubId))) {
         std::this_thread::yield();
     }
 
     if (!publication->isOriginal()) {
-        throw ArchiveException("publication already added for channel=" + channel + ", stream id=" + std::to_string(streamId), SOURCEINFO);
+        throw ArchiveException(
+            "publication already added for channel=" + channel + ", stream id=" + std::to_string(streamId), SOURCEINFO);
     }
 
     startRecording(ChannelUri::addSessionId(channel, publication->sessionId()), streamId,
-            codecs::SourceLocation::LOCAL);
+                   codecs::SourceLocation::LOCAL);
 
     return publication;
 }
@@ -145,31 +142,31 @@ std::shared_ptr<aeron::ExclusivePublication> AeronArchive::addRecordedExclusiveP
 
     std::int64_t pubId = aeron_->addExclusivePublication(channel, streamId);
     std::shared_ptr<aeron::ExclusivePublication> publication;
-    while (!(publication = aeron_->findExclusivePublication(pubId)))
-    {
+    while (!(publication = aeron_->findExclusivePublication(pubId))) {
         std::this_thread::yield();
     }
 
     startRecording(ChannelUri::addSessionId(channel, publication->sessionId()), streamId,
-            codecs::SourceLocation::LOCAL);
+                   codecs::SourceLocation::LOCAL);
 
     return publication;
 }
 
 std::int64_t AeronArchive::startRecording(const std::string& channel, std::int32_t streamId,
                                           codecs::SourceLocation::Value sourceLocation) {
-    return callAndPollForResponse([&](std::int64_t correlationId)
-    {
-        return archiveProxy_->startRecording(channel, streamId, sourceLocation, correlationId, controlSessionId_);
-    }, "start recording");
+    return callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return archiveProxy_->startRecording(channel, streamId, sourceLocation, correlationId, controlSessionId_);
+        },
+        "start recording");
 }
 
 void AeronArchive::stopRecording(const std::string& channel, std::int32_t streamId) {
-    callAndPollForResponse([&](std::int64_t correlationId)
-    {
-        return this->archiveProxy_->stopRecording(channel, streamId, correlationId,
-                controlSessionId_);
-    }, "stop recording");
+    callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->stopRecording(channel, streamId, correlationId, controlSessionId_);
+        },
+        "stop recording");
 }
 
 void AeronArchive::stopRecording(const aeron::Publication& publication) {
@@ -179,34 +176,36 @@ void AeronArchive::stopRecording(const aeron::Publication& publication) {
 }
 
 void AeronArchive::stopRecording(std::int64_t subscriptionId) {
-    callAndPollForResponse([&](std::int64_t correlationId)
-    {
-        return this->archiveProxy_->stopRecording(subscriptionId, correlationId,
-                controlSessionId_);
-    }, "stop recording");
+    callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->stopRecording(subscriptionId, correlationId, controlSessionId_);
+        },
+        "stop recording");
 }
 
 std::int64_t AeronArchive::startReplay(std::int64_t recordingId, std::int64_t position, std::int64_t length,
                                        const std::string& replayChannel, std::int32_t replayStreamId) {
-    return callAndPollForResponse([&](std::int64_t correlationId)
-    {
-        return archiveProxy_->replay(recordingId, position, length, replayChannel, replayStreamId, correlationId,
-                               controlSessionId_);
-    }, "start replay");
+    return callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return archiveProxy_->replay(recordingId, position, length, replayChannel, replayStreamId, correlationId,
+                                         controlSessionId_);
+        },
+        "start replay");
 }
 
 void AeronArchive::stopReplay(std::int64_t replaySessionId) {
-    callAndPollForResponse([&](std::int64_t correlationId)
-    {
-        return this->archiveProxy_->stopReplay(replaySessionId, correlationId, controlSessionId_);
-    }, "stop replay");
+    callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->stopReplay(replaySessionId, correlationId, controlSessionId_);
+        },
+        "stop replay");
 }
 
 std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recordingId, std::int64_t position,
                                                           std::int64_t length, const std::string& replayChannel,
                                                           std::int32_t replayStreamId) {
-    return replay(recordingId, position, length, replayChannel, replayStreamId,
-            defaultOnAvailableImageHandler, defaultOnUnavailableImageHandler);
+    return replay(recordingId, position, length, replayChannel, replayStreamId, defaultOnAvailableImageHandler,
+                  defaultOnUnavailableImageHandler);
 }
 
 std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recordingId, std::int64_t position,
@@ -216,18 +215,18 @@ std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recording
                                                           aeron::on_unavailable_image_t&& unavailableImageHandler) {
     ChannelUri replayChannelUri = ChannelUri::parse(replayChannel);
 
-    std::int32_t replaySessionId = static_cast<std::int32_t>(
-            callAndPollForResponse([&](std::int64_t correlationId)
-            {
-                return this->archiveProxy_->replay(recordingId, position, length,
-                        replayChannel, replayStreamId, correlationId, controlSessionId_);
-            }, "replay"));
+    std::int32_t replaySessionId = static_cast<std::int32_t>(callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->replay(recordingId, position, length, replayChannel, replayStreamId,
+                                               correlationId, controlSessionId_);
+        },
+        "replay"));
 
     replayChannelUri.put("session-id", std::to_string(replaySessionId));
 
     // wait for the subscription to become available
     std::int64_t subId = aeron_->addSubscription(replayChannelUri.toString(), replayStreamId,
-            std::move(availableImageHandler), std::move(unavailableImageHandler));
+                                                 std::move(availableImageHandler), std::move(unavailableImageHandler));
 
     std::shared_ptr<Subscription> subscription;
     while (!(subscription = aeron_->findSubscription(subId))) {
@@ -239,45 +238,46 @@ std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recording
 
 std::int32_t AeronArchive::listRecordings(std::int64_t fromRecordingId, std::int32_t recordCount,
                                           RecordingDescriptorConsumer&& consumer) {
-    return callAndPollForDescriptors([&](std::int64_t correlationId)
-    {
-        return this->archiveProxy_->listRecordings(fromRecordingId, recordCount,
-                correlationId, controlSessionId_);
-    }, recordCount, std::move(consumer), "list recordings");
+    return callAndPollForDescriptors(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->listRecordings(fromRecordingId, recordCount, correlationId, controlSessionId_);
+        },
+        recordCount, std::move(consumer), "list recordings");
 }
 
 std::int32_t AeronArchive::listRecordingsForUri(std::int64_t fromRecordingId, std::int32_t recordCount,
                                                 const std::string& channel, std::int32_t streamId,
                                                 RecordingDescriptorConsumer&& consumer) {
-    return callAndPollForDescriptors([&](std::int64_t correlationId)
-    {
-        return archiveProxy_->listRecordingsForUri(fromRecordingId, recordCount, channel, streamId, correlationId,
-                                             controlSessionId_);
-    }, recordCount, std::move(consumer), "list recordings for URI");
+    return callAndPollForDescriptors(
+        [&](std::int64_t correlationId) {
+            return archiveProxy_->listRecordingsForUri(fromRecordingId, recordCount, channel, streamId, correlationId,
+                                                       controlSessionId_);
+        },
+        recordCount, std::move(consumer), "list recordings for URI");
 }
 
 std::int32_t AeronArchive::listRecording(std::int64_t recordingId, RecordingDescriptorConsumer&& consumer) {
-    return callAndPollForDescriptors([&](std::int64_t correlationId)
-    {
-        return this->archiveProxy_->listRecording(recordingId,
-                correlationId, controlSessionId_);
-    }, 1, std::move(consumer), "list recording");
+    return callAndPollForDescriptors(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->listRecording(recordingId, correlationId, controlSessionId_);
+        },
+        1, std::move(consumer), "list recording");
 }
 
 std::int64_t AeronArchive::getRecordingPosition(std::int64_t recordingId) {
-    return callAndPollForResponse([&](std::int64_t correlationId)
-    {
-        return this->archiveProxy_->getRecordingPosition(recordingId, correlationId,
-                controlSessionId_);
-    }, "get recording position");
+    return callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->getRecordingPosition(recordingId, correlationId, controlSessionId_);
+        },
+        "get recording position");
 }
 
 void AeronArchive::truncateRecording(std::int64_t recordingId, std::int64_t position) {
-    callAndPollForResponse([&](std::int64_t correlationId)
-    {
-        return this->archiveProxy_->truncateRecording(recordingId, position, correlationId,
-                controlSessionId_);
-    }, "truncate recording");
+    callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->truncateRecording(recordingId, position, correlationId, controlSessionId_);
+        },
+        "truncate recording");
 }
 
 std::int64_t AeronArchive::awaitSessionOpened(std::int64_t correlationId) {
@@ -409,8 +409,7 @@ std::int64_t AeronArchive::pollForDescriptors(std::int64_t correlationId, std::i
     }
 }
 
-std::int64_t AeronArchive::callAndPollForResponse(std::function<bool (std::int64_t)>&& f, const char * request)
-{
+std::int64_t AeronArchive::callAndPollForResponse(std::function<bool(std::int64_t)>&& f, const char* request) {
     std::unique_lock<std::mutex> lock(lock_);
 
     std::int64_t correlationId = aeron_->nextCorrelationId();
@@ -422,8 +421,8 @@ std::int64_t AeronArchive::callAndPollForResponse(std::function<bool (std::int64
     return pollForResponse(correlationId);
 }
 
-std::int64_t AeronArchive::callAndPollForDescriptors(std::function<bool (std::int64_t)>&& f, std::int32_t recordCount, RecordingDescriptorConsumer&& consumer, const char * request)
-{
+std::int64_t AeronArchive::callAndPollForDescriptors(std::function<bool(std::int64_t)>&& f, std::int32_t recordCount,
+                                                     RecordingDescriptorConsumer&& consumer, const char* request) {
     std::unique_lock<std::mutex> lock(lock_);
 
     std::int64_t correlationId = aeron_->nextCorrelationId();

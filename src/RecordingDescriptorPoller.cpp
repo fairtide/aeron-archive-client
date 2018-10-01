@@ -27,10 +27,10 @@ namespace archive {
 
 RecordingDescriptorPoller::RecordingDescriptorPoller(const std::shared_ptr<Subscription>& subscription,
                                                      std::int32_t fragmentLimit, std::int64_t controlSessionId)
-    : subscription_(subscription)
-    , fragmentLimit_(fragmentLimit)
-    , controlSessionId_(controlSessionId)
-    , fragmentAssembler_([this](concurrent::AtomicBuffer& buffer, util::index_t offset, util::index_t length,
+    : subscription_(subscription),
+      fragmentLimit_(fragmentLimit),
+      controlSessionId_(controlSessionId),
+      fragmentAssembler_([this](concurrent::AtomicBuffer& buffer, util::index_t offset, util::index_t length,
                                 Header& header) { return onFragment(buffer, offset, length, header); }) {}
 
 std::int32_t RecordingDescriptorPoller::poll() {

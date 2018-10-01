@@ -27,9 +27,9 @@ namespace archive {
 
 ControlResponsePoller::ControlResponsePoller(const std::shared_ptr<Subscription>& subscription,
                                              std::int32_t fragmentLimit)
-    : subscription_(subscription)
-    , fragmentLimit_(fragmentLimit)
-    , fragmentAssembler_([this](concurrent::AtomicBuffer& buffer, util::index_t offset, util::index_t length,
+    : subscription_(subscription),
+      fragmentLimit_(fragmentLimit),
+      fragmentAssembler_([this](concurrent::AtomicBuffer& buffer, util::index_t offset, util::index_t length,
                                 Header& header) { return onFragment(buffer, offset, length, header); }) {}
 
 const std::shared_ptr<Subscription> ControlResponsePoller::subscription() const { return subscription_; }
