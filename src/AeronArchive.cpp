@@ -105,16 +105,55 @@ boost::optional<std::string> AeronArchive::pollForErrorResponse() {
     return {};
 }
 
-void AeronArchive::checkForErrorResponse() { throw ArchiveException("not implemented", SOURCEINFO); }
+void AeronArchive::checkForErrorResponse()
+{
+    std::unique_lock<std::mutex> lock(lock_);
+
+    if (controlResponsePoller_->poll() != 0 && controlResponsePoller_->isPollComplete()) {
+        if (controlResponsePoller_->templateId() == codecs::ControlResponse::sbeTemplateId() &&
+            controlResponsePoller_->code() == codecs::ControlResponseCode::ERROR) {
+            throw ArchiveException("error: " + controlResponsePoller_->errorMessage()
+                    + ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()), SOURCEINFO);
+        }
+    }
+}
 
 std::shared_ptr<aeron::Publication> AeronArchive::addRecordedPublication(const std::string& channel,
                                                                          std::int32_t streamId) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+    std::unique_lock<std::mutex> lock(lock_);
+
+    std::int64_t pubId = aeron_->addPublication(channel, streamId);
+    std::shared_ptr<aeron::Publication> publication;
+    while (!(publication = aeron_->findPublication(pubId)))
+    {
+        std::this_thread::yield();
+    }
+
+    if (!publication->isOriginal()) {
+        throw ArchiveException("publication already added for channel=" + channel + ", stream id=" + std::to_string(streamId), SOURCEINFO);
+    }
+
+    startRecording(ChannelUri::addSessionId(channel, publication->sessionId()), streamId,
+            codecs::SourceLocation::LOCAL);
+
+    return publication;
 }
 
 std::shared_ptr<aeron::ExclusivePublication> AeronArchive::addRecordedExclusivePublication(const std::string& channel,
                                                                                            std::int32_t streamId) {
-    throw ArchiveException("not implemented", SOURCEINFO);
+    std::unique_lock<std::mutex> lock(lock_);
+
+    std::int64_t pubId = aeron_->addExclusivePublication(channel, streamId);
+    std::shared_ptr<aeron::ExclusivePublication> publication;
+    while (!(publication = aeron_->findExclusivePublication(pubId)))
+    {
+        std::this_thread::yield();
+    }
+
+    startRecording(ChannelUri::addSessionId(channel, publication->sessionId()), streamId,
+            codecs::SourceLocation::LOCAL);
+
+    return publication;
 }
 
 std::int64_t AeronArchive::startRecording(const std::string& channel, std::int32_t streamId,
