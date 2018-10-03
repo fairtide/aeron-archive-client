@@ -62,16 +62,16 @@ static const std::string RECORDING_EVENTS_STREAM_ID_PROP_NAME = "aeron.archive.r
 static const std::int32_t RECORDING_EVENTS_STREAM_ID_DEFAULT = 30;
 
 // Sparse term buffer indicator for control streams.
-static const std::string CONTROL_TERM_BUFFER_SPARSE_PARAM_NAME = "aeron.archive.control.term.buffer.sparse";
+static const std::string CONTROL_TERM_BUFFER_SPARSE_PROP_NAME = "aeron.archive.control.term.buffer.sparse";
 static const bool CONTROL_TERM_BUFFER_SPARSE_DEFAULT = true;
 
 // Term length for control streams.
 // Low term length for control channel reflects expected low bandwidth usage.
-static const std::string CONTROL_TERM_BUFFER_LENGTH_PARAM_NAME = "aeron.archive.control.term.buffer.length";
+static const std::string CONTROL_TERM_BUFFER_LENGTH_PROP_NAME = "aeron.archive.control.term.buffer.length";
 static const std::int32_t CONTROL_TERM_BUFFER_LENGTH_DEFAULT = 64 * 1024;
 
 // MTU length for control streams.
-static const std::string CONTROL_MTU_LENGTH_PARAM_NAME = "aeron.archive.control.mtu.length";
+static const std::string CONTROL_MTU_LENGTH_PROP_NAME = "aeron.archive.control.mtu.length";
 static const std::int32_t CONTROL_MTU_LENGTH_DEFAULT = 1408;
 }  // namespace
 
@@ -108,9 +108,9 @@ Configuration::Configuration(const std::string& filename) {
     controlResponseStreamId = pt.get(CONTROL_RESPONSE_STREAM_ID_PROP_NAME, CONTROL_RESPONSE_STREAM_ID_DEFAULT);
     recordingEventsChannel = pt.get(RECORDING_EVENTS_CHANNEL_PROP_NAME, RECORDING_EVENTS_CHANNEL_DEFAULT);
     recordingEventsStreamId = pt.get(RECORDING_EVENTS_STREAM_ID_PROP_NAME, RECORDING_EVENTS_STREAM_ID_DEFAULT);
-    controlTermBufferSparse = pt.get(CONTROL_TERM_BUFFER_SPARSE_PARAM_NAME, CONTROL_TERM_BUFFER_SPARSE_DEFAULT);
-    controlTermBufferLength = pt.get(CONTROL_TERM_BUFFER_LENGTH_PARAM_NAME, CONTROL_TERM_BUFFER_LENGTH_DEFAULT);
-    controlMtuLength = pt.get(CONTROL_MTU_LENGTH_PARAM_NAME, CONTROL_MTU_LENGTH_DEFAULT);
+    controlTermBufferSparse = pt.get(CONTROL_TERM_BUFFER_SPARSE_PROP_NAME, CONTROL_TERM_BUFFER_SPARSE_DEFAULT);
+    controlTermBufferLength = pt.get(CONTROL_TERM_BUFFER_LENGTH_PROP_NAME, CONTROL_TERM_BUFFER_LENGTH_DEFAULT);
+    controlMtuLength = pt.get(CONTROL_MTU_LENGTH_PROP_NAME, CONTROL_MTU_LENGTH_DEFAULT);
 }
 
 }  // namespace archive

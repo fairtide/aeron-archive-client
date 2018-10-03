@@ -12,4 +12,5 @@ endfunction()
 
 # tests
 aeron_archive_test(ChannelUriTest ChannelUriTest.cpp)
+aeron_archive_test(Configuration Configuration.cpp)
 aeron_archive_test(ContextTest ContextTest.cpp)
