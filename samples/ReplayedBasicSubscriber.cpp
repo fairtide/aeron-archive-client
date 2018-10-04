@@ -42,7 +42,14 @@ std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const 
                         long stopTimestamp, long startPosition, long stopPosition, int initialTermId,
                         int segmentFileLength, int termBufferLength, int mtuLength, int sessionId, int streamId,
                         const std::string& strippedChannel, const std::string& originalChannel,
-                        const std::string& sourceIdentity) { lastRecordingId = recordingId; };
+                        const std::string& sourceIdentity) {
+        std::cout << "recId: " << recordingId << ", startTs: " << startTimestamp << ", stopTs: " << stopTimestamp
+                << ", startPos: " << startPosition << ", stopPos: " << stopPosition
+                << ", strippedChannel: " << strippedChannel << ", originalChannel: " << originalChannel
+                << '\n';
+
+        lastRecordingId = recordingId;
+    };
 
     std::int32_t foundCount = archive.listRecordingsForUri(0, 100, channel, streamId, consumer);
 
@@ -99,16 +106,7 @@ int main(int argc, char* argv[]) {
         auto archive = aeron::archive::AeronArchive::connect();
 
         std::int64_t recordingId = findLatestRecordingId(*archive, channel, streamId);
-        std::int64_t sessionId =
-            archive->startReplay(recordingId, 0, std::numeric_limits<std::int64_t>::max(), channel, replayStreamId);
-
-        std::string replayChannel = aeron::archive::ChannelUri::addSessionId(channel, sessionId);
-
-        std::int64_t subId = archive->context().aeron()->addSubscription(replayChannel, replayStreamId);
-        std::shared_ptr<aeron::Subscription> subscription;
-        while (!(subscription = archive->context().aeron()->findSubscription(subId))) {
-            std::this_thread::yield();
-        }
+        auto subscription = archive->replay(recordingId, 0, std::numeric_limits<std::int64_t>::max(), channel, replayStreamId);
 
         // polling loop
         auto handler = printStringMessage();

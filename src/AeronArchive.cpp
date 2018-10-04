@@ -161,6 +161,16 @@ std::int64_t AeronArchive::startRecording(const std::string& channel, std::int32
         "start recording");
 }
 
+std::int64_t AeronArchive::extendRecording(std::int64_t recordingId, const std::string& channel, std::int32_t streamId,
+                            codecs::SourceLocation::Value sourceLocation)
+{
+    return callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return archiveProxy_->extendRecording(channel, streamId, sourceLocation, recordingId, correlationId, controlSessionId_);
+        },
+        "extend recording");
+}
+
 void AeronArchive::stopRecording(const std::string& channel, std::int32_t streamId) {
     callAndPollForResponse(
         [&](std::int64_t correlationId) {
@@ -213,19 +223,12 @@ std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recording
                                                           std::int32_t replayStreamId,
                                                           aeron::on_available_image_t&& availableImageHandler,
                                                           aeron::on_unavailable_image_t&& unavailableImageHandler) {
-    ChannelUri replayChannelUri = ChannelUri::parse(replayChannel);
+    std::int64_t replaySessionId = startReplay(recordingId, position, length, replayChannel, replayStreamId);
 
-    std::int32_t replaySessionId = static_cast<std::int32_t>(callAndPollForResponse(
-        [&](std::int64_t correlationId) {
-            return this->archiveProxy_->replay(recordingId, position, length, replayChannel, replayStreamId,
-                                               correlationId, controlSessionId_);
-        },
-        "replay"));
-
-    replayChannelUri.put("session-id", std::to_string(replaySessionId));
+    std::string updatedReplayChannel = ChannelUri::addSessionId(replayChannel, replaySessionId);
 
     // wait for the subscription to become available
-    std::int64_t subId = aeron_->addSubscription(replayChannelUri.toString(), replayStreamId,
+    std::int64_t subId = aeron_->addSubscription(updatedReplayChannel, replayStreamId,
                                                  std::move(availableImageHandler), std::move(unavailableImageHandler));
 
     std::shared_ptr<Subscription> subscription;
