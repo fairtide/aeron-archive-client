@@ -21,8 +21,7 @@
 
 #include <Configuration.h>
 
-namespace
-{
+namespace {
 const std::string propertyFileContent = R"#(
 aeron.archive.control.channel=aaaBBBwwwQQQ
 aeron.archive.control.mtu.length=2048
@@ -39,11 +38,9 @@ aeron.archive.recording.events.stream.id=22
 )#";
 }
 
-class ConfigurationTest : public ::testing::Test
-{
+class ConfigurationTest : public ::testing::Test {
 protected:
-    void SetUp() override
-    {
+    void SetUp() override {
         filename = std::tmpnam(nullptr);
 
         std::ofstream of(filename);
@@ -55,16 +52,12 @@ protected:
         of.close();
     }
 
-    void TearDown() override
-    {
-        std::remove(filename.c_str());
-    }
+    void TearDown() override { std::remove(filename.c_str()); }
 
     std::string filename;
 };
 
-TEST_F(ConfigurationTest, shouldReadConfigFromPropertyFile)
-{
+TEST_F(ConfigurationTest, shouldReadConfigFromPropertyFile) {
     aeron::archive::Configuration cfg(filename);
 
     EXPECT_EQ(1234567, cfg.messageTimeoutNs);
@@ -80,4 +73,3 @@ TEST_F(ConfigurationTest, shouldReadConfigFromPropertyFile)
     EXPECT_EQ(4096, cfg.controlTermBufferLength);
     EXPECT_EQ(2048, cfg.controlMtuLength);
 }
-

@@ -80,7 +80,8 @@ int main(int argc, char* argv[]) {
         auto archive = aeron::archive::AeronArchive::connect();
 
         std::int64_t recordingId = aeron::archive::findLatestRecordingId(*archive, channel, streamId);
-        auto subscription = archive->replay(recordingId, 0, std::numeric_limits<std::int64_t>::max(), channel, replayStreamId);
+        auto subscription =
+            archive->replay(recordingId, 0, std::numeric_limits<std::int64_t>::max(), channel, replayStreamId);
 
         // polling loop
         auto handler = printStringMessage();

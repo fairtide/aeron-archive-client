@@ -63,7 +63,7 @@ public:
                                 io::aeron::archive::codecs::SourceLocation::Value sourceLocation);
 
     std::int64_t extendRecording(std::int64_t recordingId, const std::string& channel, std::int32_t streamId,
-                                io::aeron::archive::codecs::SourceLocation::Value sourceLocation);
+                                 io::aeron::archive::codecs::SourceLocation::Value sourceLocation);
 
     void stopRecording(const std::string& channel, std::int32_t streamId);
 

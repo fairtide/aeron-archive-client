@@ -39,10 +39,10 @@ namespace archive {
 
 ArchiveProxy::ArchiveProxy(const std::shared_ptr<aeron::Publication>& publication, std::int64_t connectTimeoutNs,
                            std::int32_t retryAttempts)
-    : publication_(publication),
-      buffer_(&underlyingBuffer_[0], underlyingBuffer_.size()),
-      connectTimeoutNs_(connectTimeoutNs),
-      retryAttempts_(retryAttempts) {}
+    : publication_(publication)
+    , buffer_(&underlyingBuffer_[0], underlyingBuffer_.size())
+    , connectTimeoutNs_(connectTimeoutNs)
+    , retryAttempts_(retryAttempts) {}
 
 bool ArchiveProxy::connect(const std::string& responseChannel, std::int32_t responseStreamId,
                            std::int64_t correlationId) {

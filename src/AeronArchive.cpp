@@ -34,7 +34,9 @@ static const std::int32_t DEFAULT_RETRY_ATTEMPTS = 3;
 namespace aeron {
 namespace archive {
 
-AeronArchive::AeronArchive(const Context& ctx) : ctx_(ctx), messageTimeoutNs_(ctx_.messageTimeoutNs()) {
+AeronArchive::AeronArchive(const Context& ctx)
+    : ctx_(ctx)
+    , messageTimeoutNs_(ctx_.messageTimeoutNs()) {
     // TODO: I think it's better to pass a fully prepared context to the constructor
     ctx_.conclude();
 
@@ -71,7 +73,8 @@ AeronArchive::AeronArchive(const Context& ctx) : ctx_(ctx), messageTimeoutNs_(ct
 }
 
 AeronArchive::AeronArchive(const Context& ctx, const ArchiveProxy& archiveProxy)
-    : ctx_(ctx), archiveProxy_(std::make_unique<ArchiveProxy>(archiveProxy)) {
+    : ctx_(ctx)
+    , archiveProxy_(std::make_unique<ArchiveProxy>(archiveProxy)) {
     // TODO
 }
 
@@ -162,11 +165,11 @@ std::int64_t AeronArchive::startRecording(const std::string& channel, std::int32
 }
 
 std::int64_t AeronArchive::extendRecording(std::int64_t recordingId, const std::string& channel, std::int32_t streamId,
-                            codecs::SourceLocation::Value sourceLocation)
-{
+                                           codecs::SourceLocation::Value sourceLocation) {
     return callAndPollForResponse(
         [&](std::int64_t correlationId) {
-            return archiveProxy_->extendRecording(channel, streamId, sourceLocation, recordingId, correlationId, controlSessionId_);
+            return archiveProxy_->extendRecording(channel, streamId, sourceLocation, recordingId, correlationId,
+                                                  controlSessionId_);
         },
         "extend recording");
 }
@@ -228,8 +231,8 @@ std::shared_ptr<aeron::Subscription> AeronArchive::replay(std::int64_t recording
     std::string updatedReplayChannel = ChannelUri::addSessionId(replayChannel, replaySessionId);
 
     // wait for the subscription to become available
-    std::int64_t subId = aeron_->addSubscription(updatedReplayChannel, replayStreamId,
-                                                 std::move(availableImageHandler), std::move(unavailableImageHandler));
+    std::int64_t subId = aeron_->addSubscription(updatedReplayChannel, replayStreamId, std::move(availableImageHandler),
+                                                 std::move(unavailableImageHandler));
 
     std::shared_ptr<Subscription> subscription;
     while (!(subscription = aeron_->findSubscription(subId))) {

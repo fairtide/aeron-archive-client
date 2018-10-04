@@ -30,7 +30,10 @@ namespace archive {
 
 Context::Context() { controlRequestChannel(cfg_.controlChannel); }
 
-Context::Context(const Configuration& cfg) : cfg_(cfg) { controlRequestChannel(cfg_.controlChannel); }
+Context::Context(const Configuration& cfg)
+    : cfg_(cfg) {
+    controlRequestChannel(cfg_.controlChannel);
+}
 
 void Context::conclude() {
     if (aeronDirectoryName_.empty()) {

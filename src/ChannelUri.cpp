@@ -47,11 +47,14 @@ namespace aeron {
 namespace archive {
 
 ChannelUri::ChannelUri(const std::string& prefix, const std::string& media, ParamsMap&& params)
-    : prefix_(prefix), media_(media), params_(std::move(params)) {
+    : prefix_(prefix)
+    , media_(media)
+    , params_(std::move(params)) {
     // TODO: tags are not parsed, however these are not needed for the archive client
 }
 
-ChannelUri::ChannelUri(const std::string& media, ParamsMap&& params) : ChannelUri("", media, std::move(params)) {}
+ChannelUri::ChannelUri(const std::string& media, ParamsMap&& params)
+    : ChannelUri("", media, std::move(params)) {}
 
 const std::string& ChannelUri::scheme() const { return AERON_SCHEME; }
 
