@@ -26,7 +26,11 @@
 #include <ChannelUri.h>
 #include <RecordingPos.h>
 
+#include "SamplesUtil.h"
+
 namespace po = boost::program_options;
+namespace codecs = io::aeron::archive::codecs;
+
 using namespace aeron;
 
 namespace {
@@ -71,9 +75,15 @@ int main(int argc, char* argv[]) {
             archive->stopRecording(channel, streamId);
         }
 
-        // TODO: get latest recording ID and extend the recording
-
-        archive->startRecording(channel, streamId, io::aeron::archive::codecs::SourceLocation::LOCAL);
+        // get the latest recording ID and extend the recording
+        std::int64_t recordingId = aeron::archive::findLatestRecordingId(*archive, channel, streamId);
+        if (extendRecording && recordingId != -1) {
+            std::cout << "Extending recording...\n";
+            archive->extendRecording(recordingId, channel, streamId, codecs::SourceLocation::LOCAL);
+        } else {
+            std::cout << "Starting new recording...\n";
+            archive->startRecording(channel, streamId, codecs::SourceLocation::LOCAL);
+        }
 
         std::int64_t pubId = aeron->addPublication(channel, streamId);
         std::shared_ptr<Publication> publication;
@@ -94,7 +104,7 @@ int main(int argc, char* argv[]) {
         }
 
         // wait for recording to start
-        std::int64_t recordingId = archive::RecordingPos::getRecordingId(counters, counterId);
+        recordingId = archive::RecordingPos::getRecordingId(counters, counterId);
         std::cout << "Recording started, recording id = " << recordingId << '\n';
 
         // publish messages

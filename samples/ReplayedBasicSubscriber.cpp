@@ -24,6 +24,8 @@
 #include <AeronArchive.h>
 #include <ChannelUri.h>
 
+#include "SamplesUtil.h"
+
 namespace po = boost::program_options;
 
 namespace {
@@ -33,34 +35,6 @@ const int FRAGMENTS_LIMIT = 10;
 std::atomic<bool> running{true};
 
 void sigIntHandler(int) { running = false; }
-
-std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const std::string& channel,
-                                   std::int32_t streamId) {
-    std::int64_t lastRecordingId{-1};
-
-    auto consumer = [&](long controlSessionId, long correlationId, long recordingId, long startTimestamp,
-                        long stopTimestamp, long startPosition, long stopPosition, int initialTermId,
-                        int segmentFileLength, int termBufferLength, int mtuLength, int sessionId, int streamId,
-                        const std::string& strippedChannel, const std::string& originalChannel,
-                        const std::string& sourceIdentity) {
-        std::cout << "recId: " << recordingId << ", startTs: " << startTimestamp << ", stopTs: " << stopTimestamp
-                << ", startPos: " << startPosition << ", stopPos: " << stopPosition
-                << ", strippedChannel: " << strippedChannel << ", originalChannel: " << originalChannel
-                << '\n';
-
-        lastRecordingId = recordingId;
-    };
-
-    std::int32_t foundCount = archive.listRecordingsForUri(0, 100, channel, streamId, consumer);
-
-    if (!foundCount) {
-        throw std::runtime_error("no recordings found");
-    }
-
-    std::cout << "found " << foundCount << ", last recording id = " << lastRecordingId << '\n';
-
-    return lastRecordingId;
-}
 
 aeron::fragment_handler_t printStringMessage() {
     return [&](const aeron::AtomicBuffer& buffer, aeron::util::index_t offset, aeron::util::index_t length,
@@ -105,7 +79,7 @@ int main(int argc, char* argv[]) {
         // TODO: aeron::archive::Context ctx;
         auto archive = aeron::archive::AeronArchive::connect();
 
-        std::int64_t recordingId = findLatestRecordingId(*archive, channel, streamId);
+        std::int64_t recordingId = aeron::archive::findLatestRecordingId(*archive, channel, streamId);
         auto subscription = archive->replay(recordingId, 0, std::numeric_limits<std::int64_t>::max(), channel, replayStreamId);
 
         // polling loop
