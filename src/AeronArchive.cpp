@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #include <thread>
 
 #include <io_aeron_archive_codecs/ControlResponse.h>

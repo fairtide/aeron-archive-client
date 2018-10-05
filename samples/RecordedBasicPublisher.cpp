@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #include <signal.h>
 #include <atomic>
 #include <chrono>

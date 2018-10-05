@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #include <io_aeron_archive_codecs/CloseSessionRequest.h>
 #include <io_aeron_archive_codecs/ConnectRequest.h>
 #include <io_aeron_archive_codecs/ExtendRecordingRequest.h>

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #include "RecordingPos.h"
 
 namespace {

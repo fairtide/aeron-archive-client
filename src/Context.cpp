@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #include "Context.h"
 #include "ChannelUri.h"
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #include <boost/stacktrace.hpp>
 
 #include <sstream>
