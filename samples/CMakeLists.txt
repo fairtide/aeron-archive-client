@@ -40,6 +40,11 @@ aeron_archive_sample(DriverControl DriverControl.cpp)
 aeron_archive_sample(RecordedBasicPublisher RecordedBasicPublisher.cpp)
 aeron_archive_sample(ReplayedBasicSubscriber ReplayedBasicSubscriber.cpp)
 
-install(TARGETS RecordedBasicPublisher ReplayedBasicSubscriber
-    DESTINATION bin)
+install(
+    TARGETS
+        DriverControl
+        RecordedBasicPublisher
+        ReplayedBasicSubscriber
+    DESTINATION
+        bin)
 
