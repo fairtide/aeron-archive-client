@@ -36,6 +36,7 @@ function(aeron_archive_sample name file)
 endfunction()
 
 # sample apps
+aeron_archive_sample(DriverControl DriverControl.cpp)
 aeron_archive_sample(RecordedBasicPublisher RecordedBasicPublisher.cpp)
 aeron_archive_sample(ReplayedBasicSubscriber ReplayedBasicSubscriber.cpp)
 

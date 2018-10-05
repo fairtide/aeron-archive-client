@@ -57,8 +57,8 @@ int main(int argc, char* argv[]) {
 
     po::options_description desc("Options");
     desc.add_options()("help", "print help message")(
-        "channel", po::value<std::string>(&channel)->default_value("aeron:udp?endpoint=localhost:40123"))(
-        "stream-id", po::value<std::int32_t>(&streamId)->default_value(10))(
+        "channel,c", po::value<std::string>(&channel)->default_value("aeron:udp?endpoint=localhost:40123"))(
+        "stream-id,i", po::value<std::int32_t>(&streamId)->default_value(10))(
         "frame-count-limit", po::value<std::int32_t>(&frameCountLimit)->default_value(20));
 
     try {

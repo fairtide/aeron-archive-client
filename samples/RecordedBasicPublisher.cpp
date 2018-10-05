@@ -47,11 +47,11 @@ int main(int argc, char* argv[]) {
 
     po::options_description desc("Options");
     desc.add_options()("help", "print help message")(
-        "channel", po::value<std::string>(&channel)->default_value("aeron:udp?endpoint=localhost:40123"))(
-        "stream-id", po::value<std::int32_t>(&streamId)->default_value(10))(
-        "messages-count", po::value<std::int32_t>(&messagesCount)->default_value(1000000))(
-        "extend-recording", po::value<bool>(&extendRecording)->default_value(false))(
-        "stop-recording", po::value<bool>(&stopRecording)->default_value(false));
+        "channel,c", po::value<std::string>(&channel)->default_value("aeron:udp?endpoint=localhost:40123"))(
+        "stream-id,i", po::value<std::int32_t>(&streamId)->default_value(10))(
+        "messages-count,m", po::value<std::int32_t>(&messagesCount)->default_value(1000000))(
+        "extend-recording,e", po::bool_switch(&extendRecording)->default_value(false))(
+        "stop-recording,s", po::bool_switch(&stopRecording)->default_value(false));
 
     try {
         po::variables_map vm;
