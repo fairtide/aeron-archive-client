@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
         // get the latest recording ID and extend the recording
         std::int64_t recordingId = aeron::archive::findLatestRecordingId(*archive, channel, streamId);
         if (extendRecording && recordingId != -1) {
-            std::cout << "Extending recording...\n";
+            std::cout << "Extending recording " << recordingId << "...\n";
             archive->extendRecording(recordingId, channel, streamId, codecs::SourceLocation::LOCAL);
         } else {
             std::cout << "Starting new recording...\n";
@@ -92,15 +92,28 @@ int main(int argc, char* argv[]) {
         }
 
         // find an archiving counter
+        std::cout << "Waiting for the counter...\n";
+
         auto& counters = aeron->countersReader();
-        std::int32_t counterId = archive::RecordingPos::findCounterIdBySession(counters, publication->sessionId());
+        std::int32_t counterId = -1;
+
+        if (extendRecording) {
+            counterId = archive::RecordingPos::findCounterIdByRecording(counters, recordingId);
+        } else {
+            counterId = archive::RecordingPos::findCounterIdBySession(counters, publication->sessionId());
+        }
+
         while (-1 == counterId) {
             if (!running) {
                 return 1;
             }
 
             std::this_thread::yield();
-            counterId = archive::RecordingPos::findCounterIdBySession(counters, publication->sessionId());
+            if (extendRecording) {
+                counterId = archive::RecordingPos::findCounterIdByRecording(counters, recordingId);
+            } else {
+                counterId = archive::RecordingPos::findCounterIdBySession(counters, publication->sessionId());
+            }
         }
 
         // wait for recording to start

@@ -22,7 +22,7 @@ namespace {
 constexpr std::int32_t SIZE_OF_INT = sizeof(std::int32_t);
 constexpr std::int32_t SIZE_OF_LONG = sizeof(std::int64_t);
 
-constexpr std::int32_t TYPE_ID_OFFSET = sizeof(std::int32_t);
+constexpr std::int32_t TYPE_ID_OFFSET = SIZE_OF_INT;
 constexpr std::int32_t RECORDING_POSITION_TYPE_ID = 100;
 constexpr std::int32_t RECORDING_ID_OFFSET = 0;
 constexpr std::int32_t SESSION_ID_OFFSET = RECORDING_ID_OFFSET + SIZE_OF_LONG;
@@ -32,6 +32,26 @@ constexpr std::int32_t SOURCE_IDENTITY_OFFSET = SOURCE_IDENTITY_LENGTH_OFFSET + 
 
 namespace aeron {
 namespace archive {
+
+std::int32_t RecordingPos::findCounterIdByRecording(aeron::concurrent::CountersReader& countersReader,
+                                               std::int64_t recordingId)
+{
+    auto buffer = countersReader.metaDataBuffer();
+
+    for (int i = 0, size = countersReader.maxCounterId(); i < size; ++i) {
+        if (countersReader.getCounterState(i) == concurrent::CountersReader::RECORD_ALLOCATED) {
+            std::int32_t recordOffset = concurrent::CountersReader::metadataOffset(i);
+
+            if (buffer.getInt32(recordOffset + TYPE_ID_OFFSET) == RECORDING_POSITION_TYPE_ID &&
+                buffer.getInt64(recordOffset + concurrent::CountersReader::KEY_OFFSET + RECORDING_ID_OFFSET) ==
+                    recordingId) {
+                return i;
+            }
+        }
+    }
+
+    return -1;
+}
 
 std::int32_t RecordingPos::findCounterIdBySession(concurrent::CountersReader& countersReader, std::int32_t sessionId) {
     auto buffer = countersReader.metaDataBuffer();
