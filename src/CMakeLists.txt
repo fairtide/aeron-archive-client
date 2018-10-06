@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-find_package(Boost REQUIRED stacktrace_basic)
+find_package(Boost REQUIRED)
 
 # generation of SBE C++ wrappers for the Aeron Archive RPC schema
 set(SBE_ARCHIVE_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/sbe")
@@ -33,7 +33,6 @@ add_dependencies(generated_sbe_code sbe)
 # static library
 set(SOURCE
     AeronArchive.cpp
-    ArchiveException.cpp
     ArchiveProxy.cpp
     ChannelUri.cpp
     Configuration.cpp
@@ -69,8 +68,6 @@ target_include_directories(aeron_archive_client
 )
 
 target_link_libraries(aeron_archive_client
-    Boost::stacktrace_basic
-    dl
     ${Aeron_CLIENT_LIB}
     sbe
     ${CMAKE_THREAD_LIBS_INIT}

@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
             std::cerr << "unknown command: " << command << '\n';
         }
     } catch (const archive::ArchiveException& e) {
-        std::cerr << "aeron archive exception: " << e.what() << " (" << e.where() << ")\n" << e.stackTrace() << '\n';
+        std::cerr << "aeron archive exception: " << e.what() << " (" << e.where() << ")\n" << '\n';
         return 1;
     } catch (const util::SourcedException& e) {
         std::cerr << "aeron exception: " << e.what() << " (" << e.where() << ")\n";

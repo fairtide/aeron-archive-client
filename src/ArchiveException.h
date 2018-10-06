@@ -21,15 +21,7 @@
 namespace aeron {
 namespace archive {
 
-class ArchiveException : public aeron::util::SourcedException {
-public:
-    ArchiveException(const std::string& what, const std::string& function, const std::string& where);
-
-    const std::string& stackTrace() const;
-
-private:
-    std::string stackTrace_;
-};
+DECLARE_SOURCED_EXCEPTION(ArchiveException);
 
 }  // namespace archive
 }  // namespace aeron
