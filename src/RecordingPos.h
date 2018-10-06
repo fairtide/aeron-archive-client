@@ -23,7 +23,7 @@ namespace archive {
 
 struct RecordingPos {
     static std::int32_t findCounterIdByRecording(aeron::concurrent::CountersReader& countersReader,
-                                               std::int64_t recordingId);
+                                                 std::int64_t recordingId);
 
     static std::int32_t findCounterIdBySession(aeron::concurrent::CountersReader& countersReader,
                                                std::int32_t sessionId);

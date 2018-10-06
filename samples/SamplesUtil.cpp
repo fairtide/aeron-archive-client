@@ -21,6 +21,26 @@
 namespace aeron {
 namespace archive {
 
+RecordingData getLatestRecordingData(aeron::archive::AeronArchive& archive, const std::string& channel,
+                                     std::int32_t streamId) {
+    RecordingData result;
+    result.recordingId = -1;
+
+    auto consumer = [&](long controlSessionId, long correlationId, long recordingId, long startTimestamp,
+                        long stopTimestamp, long startPosition, long stopPosition, int initialTermId,
+                        int segmentFileLength, int termBufferLength, int mtuLength, int sessionId, int streamId,
+                        const std::string& strippedChannel, const std::string& originalChannel,
+                        const std::string& sourceIdentity) {
+        result.recordingId = recordingId;
+        result.stopPosition = stopPosition;
+        result.initialTermId = initialTermId;
+        result.termBufferLength = termBufferLength;
+    };
+
+    archive.listRecordingsForUri(0, 100, channel, streamId, consumer);
+    return result;
+}
+
 std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const std::string& channel,
                                    std::int32_t streamId) {
     std::int64_t lastRecordingId{-1};
@@ -32,7 +52,8 @@ std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const 
                         const std::string& sourceIdentity) {
         std::cout << "recId: " << recordingId << ", startTs: " << startTimestamp << ", stopTs: " << stopTimestamp
                   << ", startPos: " << startPosition << ", stopPos: " << stopPosition
-                  << ", strippedChannel: " << strippedChannel << ", originalChannel: " << originalChannel << '\n';
+                  << ", initialTermId: " << initialTermId << ", strippedChannel: " << strippedChannel
+                  << ", originalChannel: " << originalChannel << '\n';
 
         lastRecordingId = recordingId;
     };

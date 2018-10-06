@@ -35,8 +35,8 @@ int main(int argc, char* argv[]) {
     desc.add_options()("help", "print help message")(
         "channel,c", po::value<std::string>(&channel)->default_value("aeron:udp?endpoint=localhost:40123"))(
         "stream-id,i", po::value<std::int32_t>(&streamId)->default_value(10))(
-        "remote,r", po::bool_switch(&remoteLocation)->default_value(false))(
-        "command", po::value<std::string>(&command), "values: start, stop, list");
+        "remote,r", po::bool_switch(&remoteLocation)->default_value(false))("command", po::value<std::string>(&command),
+                                                                            "values: start, stop, list");
 
     try {
         po::variables_map vm;
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 
         if ("start" == command) {
             std::cout << "starting recording of " << channel << " on stream id " << streamId
-                << (remoteLocation ? " remote" : " local") << " location" << '\n';
+                      << (remoteLocation ? " remote" : " local") << " location" << '\n';
             archive->startRecording(channel, streamId, location);
         } else if ("stop" == command) {
             std::cout << "stopping recording of " << channel << " on stream id " << streamId << '\n';

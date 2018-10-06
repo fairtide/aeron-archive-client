@@ -21,6 +21,16 @@
 namespace aeron {
 namespace archive {
 
+struct RecordingData {
+    std::int64_t recordingId;
+    std::int64_t stopPosition;
+    std::int32_t initialTermId;
+    std::int64_t termBufferLength;
+};
+
+RecordingData getLatestRecordingData(aeron::archive::AeronArchive& archive, const std::string& channel,
+                                     std::int32_t streamId);
+
 std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const std::string& channel,
                                    std::int32_t streamId);
 }  // namespace archive

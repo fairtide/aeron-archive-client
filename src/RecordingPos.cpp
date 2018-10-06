@@ -33,8 +33,7 @@ namespace aeron {
 namespace archive {
 
 std::int32_t RecordingPos::findCounterIdByRecording(aeron::concurrent::CountersReader& countersReader,
-                                               std::int64_t recordingId)
-{
+                                                    std::int64_t recordingId) {
     auto buffer = countersReader.metaDataBuffer();
 
     for (int i = 0, size = countersReader.maxCounterId(); i < size; ++i) {
