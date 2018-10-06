@@ -273,7 +273,6 @@ bool ArchiveProxy::offerWithTimeout(std::int32_t length,
             return false;
         }
 
-        // TODO: what's that?
         if (aeronClientInvoker) {
             aeronClientInvoker->invoke();
         }

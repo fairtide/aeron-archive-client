@@ -78,7 +78,7 @@ private:
         constexpr std::uint64_t offset{0};
         io::aeron::archive::codecs::MessageHeader hdr;
 
-        hdr.wrap((char*)buffer_.buffer(), offset, 0 /* TODO */, buffer_.capacity())
+        hdr.wrap((char*)buffer_.buffer(), offset, 0, buffer_.capacity())
             .blockLength(T::sbeBlockLength())
             .templateId(T::sbeTemplateId())
             .schemaId(T::sbeSchemaId())

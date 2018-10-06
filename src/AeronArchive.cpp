@@ -36,7 +36,6 @@ namespace archive {
 AeronArchive::AeronArchive(const Context& ctx)
     : ctx_(ctx)
     , messageTimeoutNs_(ctx_.messageTimeoutNs()) {
-    // TODO: I think it's better to pass a fully prepared context to the constructor
     ctx_.conclude();
 
     aeron_ = ctx_.aeron();

@@ -15,7 +15,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <cstdio>
+#include <chrono>
 #include <fstream>
 
 #include <Configuration.h>
@@ -40,7 +40,11 @@ aeron.archive.recording.events.stream.id=22
 class ConfigurationTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        filename = std::tmpnam(nullptr);
+        using namespace std::chrono;
+
+        // generate an almost unique filename
+        std::uint64_t ts = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+        filename = "ConfigurationTest." + std::to_string(ts);
 
         std::ofstream of(filename);
         if (!of.is_open()) {

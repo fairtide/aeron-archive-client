@@ -54,7 +54,7 @@ bool RecordingDescriptorPoller::isDispatchComplete() const { return isDispatchCo
 ControlledPollAction RecordingDescriptorPoller::onFragment(concurrent::AtomicBuffer& buffer, util::index_t offset,
                                                            util::index_t length, Header& header) {
     codecs::MessageHeader hdr;
-    hdr.wrap((char*)buffer.buffer(), offset, 0 /* TODO */, buffer.capacity());
+    hdr.wrap((char*)buffer.buffer(), offset, 0, buffer.capacity());
 
     const std::uint16_t templateId = hdr.templateId();
 
