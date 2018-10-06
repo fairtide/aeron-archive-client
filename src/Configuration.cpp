@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-
-#include <string>
-
+#include "util/PropertiesReader.h"
 #include "Configuration.h"
 
 namespace {
@@ -93,23 +89,20 @@ Configuration::Configuration() {
 }
 
 Configuration::Configuration(const std::string& filename) {
-    using namespace boost::property_tree;
+    util::PropertiesReader pr(filename);
 
-    ptree pt;
-    ini_parser::read_ini(filename, pt);
-
-    messageTimeoutNs = pt.get(MESSAGE_TIMEOUT_PROP_NAME, MESSAGE_TIMEOUT_DEFAULT_NS);
-    controlChannel = pt.get(CONTROL_CHANNEL_PROP_NAME, CONTROL_CHANNEL_DEFAULT);
-    controlStreamId = pt.get(CONTROL_STREAM_ID_PROP_NAME, CONTROL_STREAM_ID_DEFAULT);
-    localControlChannel = pt.get(LOCAL_CONTROL_CHANNEL_PROP_NAME, LOCAL_CONTROL_CHANNEL_DEFAULT);
-    localControlStreamId = pt.get(LOCAL_CONTROL_STREAM_ID_PROP_NAME, LOCAL_CONTROL_STREAM_ID_DEFAULT);
-    controlResponseChannel = pt.get(CONTROL_RESPONSE_CHANNEL_PROP_NAME, CONTROL_RESPONSE_CHANNEL_DEFAULT);
-    controlResponseStreamId = pt.get(CONTROL_RESPONSE_STREAM_ID_PROP_NAME, CONTROL_RESPONSE_STREAM_ID_DEFAULT);
-    recordingEventsChannel = pt.get(RECORDING_EVENTS_CHANNEL_PROP_NAME, RECORDING_EVENTS_CHANNEL_DEFAULT);
-    recordingEventsStreamId = pt.get(RECORDING_EVENTS_STREAM_ID_PROP_NAME, RECORDING_EVENTS_STREAM_ID_DEFAULT);
-    controlTermBufferSparse = pt.get(CONTROL_TERM_BUFFER_SPARSE_PROP_NAME, CONTROL_TERM_BUFFER_SPARSE_DEFAULT);
-    controlTermBufferLength = pt.get(CONTROL_TERM_BUFFER_LENGTH_PROP_NAME, CONTROL_TERM_BUFFER_LENGTH_DEFAULT);
-    controlMtuLength = pt.get(CONTROL_MTU_LENGTH_PROP_NAME, CONTROL_MTU_LENGTH_DEFAULT);
+    messageTimeoutNs = pr.get(MESSAGE_TIMEOUT_PROP_NAME, MESSAGE_TIMEOUT_DEFAULT_NS);
+    controlChannel = pr.get(CONTROL_CHANNEL_PROP_NAME, CONTROL_CHANNEL_DEFAULT);
+    controlStreamId = pr.get(CONTROL_STREAM_ID_PROP_NAME, CONTROL_STREAM_ID_DEFAULT);
+    localControlChannel = pr.get(LOCAL_CONTROL_CHANNEL_PROP_NAME, LOCAL_CONTROL_CHANNEL_DEFAULT);
+    localControlStreamId = pr.get(LOCAL_CONTROL_STREAM_ID_PROP_NAME, LOCAL_CONTROL_STREAM_ID_DEFAULT);
+    controlResponseChannel = pr.get(CONTROL_RESPONSE_CHANNEL_PROP_NAME, CONTROL_RESPONSE_CHANNEL_DEFAULT);
+    controlResponseStreamId = pr.get(CONTROL_RESPONSE_STREAM_ID_PROP_NAME, CONTROL_RESPONSE_STREAM_ID_DEFAULT);
+    recordingEventsChannel = pr.get(RECORDING_EVENTS_CHANNEL_PROP_NAME, RECORDING_EVENTS_CHANNEL_DEFAULT);
+    recordingEventsStreamId = pr.get(RECORDING_EVENTS_STREAM_ID_PROP_NAME, RECORDING_EVENTS_STREAM_ID_DEFAULT);
+    controlTermBufferSparse = pr.get(CONTROL_TERM_BUFFER_SPARSE_PROP_NAME, CONTROL_TERM_BUFFER_SPARSE_DEFAULT);
+    controlTermBufferLength = pr.get(CONTROL_TERM_BUFFER_LENGTH_PROP_NAME, CONTROL_TERM_BUFFER_LENGTH_DEFAULT);
+    controlMtuLength = pr.get(CONTROL_MTU_LENGTH_PROP_NAME, CONTROL_MTU_LENGTH_DEFAULT);
 }
 
 }  // namespace archive

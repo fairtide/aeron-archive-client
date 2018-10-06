@@ -41,6 +41,7 @@ set(SOURCE
     ControlResponsePoller.cpp
     RecordingDescriptorPoller.cpp
     RecordingPos.cpp
+    util/PropertiesReader.cpp
 )
 
 set(HEADERS
@@ -53,6 +54,7 @@ set(HEADERS
     ControlResponsePoller.h
     RecordingDescriptorPoller.h
     RecordingPos.h
+    util/PropertiesReader.h
 )
 
 add_library(aeron_archive_client STATIC ${SOURCE} ${HEADERS})
