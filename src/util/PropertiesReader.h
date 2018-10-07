@@ -50,7 +50,7 @@ public:
             return def;
         }
 
-        return parse_value<T>(it->second, (T*)nullptr);
+        return parse_value(it->second, (T*)nullptr);
     }
 
 private:

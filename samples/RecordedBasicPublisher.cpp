@@ -84,7 +84,7 @@ std::int32_t computeTermIdFromPosition(std::int64_t position, std::int32_t posit
 int main(int argc, char* argv[]) {
     ::signal(SIGINT, sigIntHandler);
 
-    std::string channel;
+    std::string channel, configFile;
     std::int32_t streamId, messagesCount;
     bool extendRecording;
 
@@ -93,7 +93,8 @@ int main(int argc, char* argv[]) {
         "channel,c", po::value<std::string>(&channel)->default_value("aeron:udp?endpoint=localhost:40123"))(
         "stream-id,i", po::value<std::int32_t>(&streamId)->default_value(10))(
         "messages-count,m", po::value<std::int32_t>(&messagesCount)->default_value(1000000))(
-        "extend-recording,e", po::bool_switch(&extendRecording)->default_value(false));
+        "extend-recording,e", po::bool_switch(&extendRecording)->default_value(false))(
+        "file,f", po::value<std::string>(&configFile));
 
     try {
         po::variables_map vm;
@@ -107,8 +108,16 @@ int main(int argc, char* argv[]) {
 
         std::cout << "Publishing to " << channel << " on stream id " << streamId << '\n';
 
-        // TODO: archive::Context ctx;
-        auto archive = archive::AeronArchive::connect();
+        std::unique_ptr<aeron::archive::Configuration> cfg;
+
+        if (!configFile.empty()) {
+            cfg = std::make_unique<aeron::archive::Configuration>(configFile);
+        } else {
+            cfg = std::make_unique<aeron::archive::Configuration>(configFile);
+        }
+
+        aeron::archive::Context ctx(*cfg);
+        auto archive = aeron::archive::AeronArchive::connect(ctx);
         auto aeron = archive->context().aeron();
 
         // get the latest recording ID and extend the recording

@@ -51,15 +51,17 @@ aeron::fragment_handler_t printStringMessage() {
 int main(int argc, char* argv[]) {
     ::signal(SIGINT, sigIntHandler);
 
-    std::string channel;
+    std::string channel, configFile;
     std::int32_t streamId;
     std::int32_t frameCountLimit;
+    std::int64_t recId;
 
     po::options_description desc("Options");
     desc.add_options()("help", "print help message")(
         "channel,c", po::value<std::string>(&channel)->default_value("aeron:udp?endpoint=localhost:40123"))(
         "stream-id,i", po::value<std::int32_t>(&streamId)->default_value(10))(
-        "frame-count-limit", po::value<std::int32_t>(&frameCountLimit)->default_value(20));
+        "frame-count-limit", po::value<std::int32_t>(&frameCountLimit)->default_value(20))(
+        "recId", po::value<std::int64_t>(&recId)->default_value(-1))("file,f", po::value<std::string>(&configFile));
 
     try {
         po::variables_map vm;
@@ -75,10 +77,19 @@ int main(int argc, char* argv[]) {
 
         std::cout << "Subscribing to " << channel << " on stream id " << streamId << '\n';
 
-        // TODO: aeron::archive::Context ctx;
-        auto archive = aeron::archive::AeronArchive::connect();
+        std::unique_ptr<aeron::archive::Configuration> cfg;
 
-        std::int64_t recordingId = aeron::archive::findLatestRecordingId(*archive, channel, streamId);
+        if (!configFile.empty()) {
+            cfg = std::make_unique<aeron::archive::Configuration>(configFile);
+        } else {
+            cfg = std::make_unique<aeron::archive::Configuration>(configFile);
+        }
+
+        aeron::archive::Context ctx(*cfg);
+        auto archive = aeron::archive::AeronArchive::connect(ctx);
+
+        std::int64_t recordingId =
+            (recId != -1) ? recId : aeron::archive::findLatestRecordingId(*archive, channel, streamId);
         auto subscription =
             archive->replay(recordingId, 0, std::numeric_limits<std::int64_t>::max(), channel, replayStreamId);
 
