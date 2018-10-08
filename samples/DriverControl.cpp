@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
         if (!configFile.empty()) {
             cfg = std::make_unique<aeron::archive::Configuration>(configFile);
         } else {
-            cfg = std::make_unique<aeron::archive::Configuration>(configFile);
+            cfg = std::make_unique<aeron::archive::Configuration>();
         }
 
         aeron::archive::Context ctx(*cfg);
