@@ -2,7 +2,7 @@
 
 C++ implementation of Aeron Archive client.
 
-Current version (v0.2.1) implements all commands from the Aeron Archive protocol. The C++ library interface is almost the same as the Java client library one originally created by the [Aeron](https://github.com/real-logic/aeron) team.
+Current version (v0.2.3) implements all commands from the Aeron Archive protocol. The C++ library interface is almost the same as the Java client library one originally created by the [Aeron](https://github.com/real-logic/aeron) team.
 
 More details about persistent streams and Aeron Archive are available in the [real-logic/aeron wiki](https://github.com/real-logic/aeron/wiki/Aeron-Archive).
 
@@ -13,6 +13,7 @@ You require the following to build the C++ API for Aeron Archive Client:
 * [CMake](http://www.cmake.org/) - 3.0.2 or higher
 * C++14 compiler for the supported platform
 * Recent Boost library
+* Java JDK to build Aeron & SBE dependencies
 
 The project has internal dependencies on [Aeron (v. 1.11.1)](https://github.com/real-logic/aeron), [simple-binary-encoding (v. 1.8.8)](https://github.com/real-logic/simple-binary-encoding) & [Google Test (v. 1.8.1)](https://github.com/google/googletest) libraries which are automatically downloaded from Github by the build system
 
@@ -47,6 +48,8 @@ $ java -cp <path-to>/aeron-all-1.11.1.jar io.aeron.samples.BasicSubscriber
 ```
 
 The **ReplayedBasicSubscriber** will replay the  recorded stream.
+
+Fine tuning of the client can be done via a property file.
 
 ## Licence (See LICENSE file for full license)
 Copyright 2018 Fairtide Pte. Ltd.

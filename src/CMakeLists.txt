@@ -74,4 +74,4 @@ target_link_libraries(aeron_archive_client
 )
 
 install(TARGETS aeron_archive_client ARCHIVE DESTINATION lib)
-install(DIRECTORY . DESTINATION include FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY . DESTINATION include/aeron-archive-client FILES_MATCHING PATTERN "*.h")
