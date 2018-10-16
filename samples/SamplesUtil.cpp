@@ -50,10 +50,11 @@ std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const 
                         int segmentFileLength, int termBufferLength, int mtuLength, int sessionId, int streamId,
                         const std::string& strippedChannel, const std::string& originalChannel,
                         const std::string& sourceIdentity) {
-        std::cout << "recId: " << recordingId << ", startTs: " << startTimestamp << ", stopTs: " << stopTimestamp
-                  << ", startPos: " << startPosition << ", stopPos: " << stopPosition
-                  << ", initialTermId: " << initialTermId << ", strippedChannel: " << strippedChannel
-                  << ", originalChannel: " << originalChannel << '\n';
+        std::cout << "recId: " << recordingId << ", ts: [" << startTimestamp << ", " << stopTimestamp
+                  << "], pos: [" << startPosition << ", " << stopPosition
+                  << "], initialTermId: " << initialTermId << ", sessionId: " << sessionId << ", streamId: " << streamId
+                  << ", strippedChannel: " << strippedChannel << ", originalChannel: " << originalChannel
+                  << ", sourceIdentity: " << sourceIdentity << '\n';
 
         lastRecordingId = recordingId;
     };
@@ -65,6 +66,22 @@ std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const 
     }
 
     return lastRecordingId;
+}
+
+void findAllRecordingIds(aeron::archive::AeronArchive& archive) {
+    auto consumer = [&](long controlSessionId, long correlationId, long recordingId, long startTimestamp,
+                        long stopTimestamp, long startPosition, long stopPosition, int initialTermId,
+                        int segmentFileLength, int termBufferLength, int mtuLength, int sessionId, int streamId,
+                        const std::string& strippedChannel, const std::string& originalChannel,
+                        const std::string& sourceIdentity) {
+        std::cout << "recId: " << recordingId << ", ts: [" << startTimestamp << ", " << stopTimestamp
+                  << "], pos: [" << startPosition << ", " << stopPosition
+                  << "], initialTermId: " << initialTermId << ", sessionId: " << sessionId << ", streamId: " << streamId
+                  << ", strippedChannel: " << strippedChannel << ", originalChannel: " << originalChannel
+                  << ", sourceIdentity: " << sourceIdentity << '\n';
+    };
+
+    archive.listRecordings(0, 100, consumer);
 }
 }  // namespace archive
 }  // namespace aeron
