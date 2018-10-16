@@ -2,7 +2,7 @@
 
 C++ implementation of Aeron Archive client.
 
-Current version (v0.2.3) implements all commands from the Aeron Archive protocol. The C++ library interface is almost the same as the Java client library one originally created by the [Aeron](https://github.com/real-logic/aeron) team.
+Current version (v0.2.4) implements all commands from the Aeron Archive protocol. The C++ library interface is almost the same as the Java client library one originally created by the [Aeron](https://github.com/real-logic/aeron) team.
 
 More details about persistent streams and Aeron Archive are available in the [real-logic/aeron wiki](https://github.com/real-logic/aeron/wiki/Aeron-Archive).
 
