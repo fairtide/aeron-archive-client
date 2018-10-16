@@ -16,7 +16,7 @@
 
 #include <thread>
 
-#include <io_aeron_archive_codecs/ControlResponse.h>
+#include "io_aeron_archive_codecs/ControlResponse.h"
 
 #include "AeronArchive.h"
 #include "ChannelUri.h"

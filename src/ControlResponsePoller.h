@@ -19,7 +19,7 @@
 #include <Aeron.h>
 #include <ControlledFragmentAssembler.h>
 
-#include <io_aeron_archive_codecs/ControlResponseCode.h>
+#include "io_aeron_archive_codecs/ControlResponseCode.h"
 
 namespace aeron {
 namespace archive {

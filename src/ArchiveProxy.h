@@ -21,8 +21,8 @@
 #include <Aeron.h>
 #include <concurrent/YieldingIdleStrategy.h>
 
-#include <io_aeron_archive_codecs/MessageHeader.h>
-#include <io_aeron_archive_codecs/SourceLocation.h>
+#include "io_aeron_archive_codecs/MessageHeader.h"
+#include "io_aeron_archive_codecs/SourceLocation.h"
 
 namespace aeron {
 namespace archive {
