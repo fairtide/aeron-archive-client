@@ -73,6 +73,8 @@ int main(int argc, char* argv[]) {
             archive->stopRecording(channel, streamId);
         } else if ("list" == command) {
             aeron::archive::findLatestRecordingId(*archive, channel, streamId);
+        } else if ("list-all" == command) {
+            aeron::archive::findAllRecordingIds(*archive);
         } else if ("delete" == command) {
             if (recId != -1) {
                 std::cout << "truncating recording " << recId << " of " << channel << " on stream id " << streamId

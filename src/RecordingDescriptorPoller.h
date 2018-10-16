@@ -23,9 +23,9 @@ namespace aeron {
 namespace archive {
 
 using RecordingDescriptorConsumer = std::function<void(
-    long controlSessionId, long correlationId, long recordingId, long startTimestamp, long stopTimestamp,
-    long startPosition, long stopPosition, int initialTermId, int segmentFileLength, int termBufferLength,
-    int mtuLength, int sessionId, int streamId, const std::string& strippedChannel, const std::string& originalChannel,
+    std::int64_t controlSessionId, std::int64_t correlationId, std::int64_t recordingId, std::int64_t startTimestamp, std::int64_t stopTimestamp,
+    std::int64_t startPosition, std::int64_t stopPosition, std::int32_t initialTermId, std::int32_t segmentFileLength, std::int32_t termBufferLength,
+    std::int32_t mtuLength, std::int32_t sessionId, std::int32_t streamId, const std::string& strippedChannel, const std::string& originalChannel,
     const std::string& sourceIdentity)>;
 
 class RecordingDescriptorPoller {

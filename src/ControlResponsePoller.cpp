@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <io_aeron_archive_codecs/ControlResponse.h>
-#include <io_aeron_archive_codecs/RecordingDescriptor.h>
+#include "io_aeron_archive_codecs/ControlResponse.h"
+#include "io_aeron_archive_codecs/RecordingDescriptor.h"
 
 #include "ControlResponsePoller.h"
 

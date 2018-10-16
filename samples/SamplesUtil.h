@@ -33,5 +33,7 @@ RecordingData getLatestRecordingData(aeron::archive::AeronArchive& archive, cons
 
 std::int64_t findLatestRecordingId(aeron::archive::AeronArchive& archive, const std::string& channel,
                                    std::int32_t streamId);
+
+void findAllRecordingIds(aeron::archive::AeronArchive& archive);
 }  // namespace archive
 }  // namespace aeron

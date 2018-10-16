@@ -21,7 +21,7 @@
 
 #include <boost/optional.hpp>
 
-#include <io_aeron_archive_codecs/SourceLocation.h>
+#include "io_aeron_archive_codecs/SourceLocation.h"
 
 #include "ArchiveException.h"
 #include "ArchiveProxy.h"
