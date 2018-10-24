@@ -29,6 +29,8 @@ public:
 
     Configuration(const Configuration&) = default;
     Configuration(Configuration&&) = default;
+    Configuration& operator=(const Configuration&) = default;
+    Configuration& operator=(Configuration&&) = default;
 
     // parameters
     std::int64_t messageTimeoutNs;

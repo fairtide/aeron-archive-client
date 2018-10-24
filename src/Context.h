@@ -28,6 +28,11 @@ public:
     Context();
     explicit Context(const Configuration& cfg);
 
+    Context(const Context&) = default;
+    Context(Context&&) = default;
+    Context& operator=(const Context&) = default;
+    Context& operator=(Context&&) = default;
+
     void conclude();
 
     // setters
