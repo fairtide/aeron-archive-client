@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <io_aeron_archive_codecs/ControlResponse.h>
-#include <io_aeron_archive_codecs/RecordingDescriptor.h>
+#include "io_aeron_archive_codecs/ControlResponse.h"
+#include "io_aeron_archive_codecs/RecordingDescriptor.h"
 
 #include "RecordingDescriptorPoller.h"
 
@@ -84,8 +84,8 @@ ControlledPollAction RecordingDescriptorPoller::onFragment(concurrent::AtomicBuf
         if (controlSessionId_ == msg.controlSessionId() && correlationId == expectedCorrelationId_) {
             consumer_(controlSessionId_, correlationId, msg.recordingId(), msg.startTimestamp(), msg.stopTimestamp(),
                       msg.startPosition(), msg.stopPosition(), msg.initialTermId(), msg.segmentFileLength(),
-                      msg.termBufferLength(), msg.mtuLength(), msg.sessionId(), msg.streamId(), msg.strippedChannel(),
-                      msg.originalChannel(), msg.sourceIdentity());
+                      msg.termBufferLength(), msg.mtuLength(), msg.sessionId(), msg.streamId(), msg.getStrippedChannelAsString(),
+                      msg.getOriginalChannelAsString(), msg.getSourceIdentityAsString());
 
             if (--remainingRecordCount_ == 0) {
                 isDispatchComplete_ = true;
