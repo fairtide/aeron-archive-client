@@ -39,6 +39,7 @@ set(SOURCE
     Context.cpp
     ControlResponsePoller.cpp
     RecordingDescriptorPoller.cpp
+    RecordingEventsAdapter.cpp
     RecordingPos.cpp
     util/PropertiesReader.cpp
 )
@@ -52,6 +53,7 @@ set(HEADERS
     Context.h
     ControlResponsePoller.h
     RecordingDescriptorPoller.h
+    RecordingEventsAdapter.h
     RecordingPos.h
     util/PropertiesReader.h
 )
