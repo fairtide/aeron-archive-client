@@ -17,6 +17,7 @@
 #include "io_aeron_archive_codecs/ControlResponse.h"
 #include "io_aeron_archive_codecs/RecordingDescriptor.h"
 
+#include "ArchiveException.h"
 #include "RecordingDescriptorPoller.h"
 
 namespace codecs = io::aeron::archive::codecs;
@@ -70,9 +71,9 @@ ControlledPollAction RecordingDescriptorPoller::onFragment(concurrent::AtomicBuf
                 isDispatchComplete_ = true;
                 return ControlledPollAction::BREAK;
             } else if (code == codecs::ControlResponseCode::ERROR) {
-                throw std::runtime_error(
+                throw ArchiveException(
                     "response for expectedCorrelationId=" + std::to_string(expectedCorrelationId_) +
-                    ", error: " + msg.getErrorMessageAsString());
+                    ", error: " + msg.getErrorMessageAsString(), SOURCEINFO);
             }
         }
     } else if (templateId == codecs::RecordingDescriptor::sbeTemplateId()) {
@@ -92,7 +93,7 @@ ControlledPollAction RecordingDescriptorPoller::onFragment(concurrent::AtomicBuf
             }
         }
     } else {
-        throw std::runtime_error("unknown template id: " + std::to_string(templateId));
+        throw ArchiveException("unknown template id: " + std::to_string(templateId), SOURCEINFO);
     }
 
     return ControlledPollAction::CONTINUE;
