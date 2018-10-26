@@ -76,3 +76,8 @@ TEST_F(ConfigurationTest, shouldReadConfigFromPropertyFile) {
     EXPECT_EQ(4096, cfg.controlTermBufferLength);
     EXPECT_EQ(2048, cfg.controlMtuLength);
 }
+
+
+TEST_F(ConfigurationTest, shouldThrowExceptionOnIncorrectFilename) {
+    EXPECT_ANY_THROW(aeron::archive::Configuration cfg("I tHinK this FileNAmE shOulD n0t exIst"));
+}

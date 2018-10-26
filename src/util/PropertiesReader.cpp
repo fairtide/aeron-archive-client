@@ -38,17 +38,21 @@ namespace aeron {
 namespace archive {
 namespace util {
 
-PropertiesReader::PropertiesReader(const std::string& filename)
-    : PropertiesReader(filename, [](const std::exception& e) { throw e; }) {}
+PropertiesReader::PropertiesReader(const std::string& filename, bool skipErrors) {
+    std::ifstream ifs(filename);
 
-PropertiesReader::PropertiesReader(const std::string& filename, std::function<void(const std::exception&)>&& onError) {
-    std::fstream ifs(filename, std::ios_base::in);
+    if (!ifs.is_open()) {
+        throw std::runtime_error("can't open property file: " + filename);
+    }
 
     for (std::string line; std::getline(ifs, line);) {
         try {
             properties_.emplace(parseLine(line));
         } catch (const std::exception& e) {
-            onError(e);
+            // rethrow if requested
+            if (!skipErrors) {
+                throw e;
+            }
         }
     }
 }
