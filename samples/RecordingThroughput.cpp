@@ -46,26 +46,36 @@ class RecordingThroughput {
 public:
     RecordingThroughput(const archive::Configuration& cfg, const std::string& channel, std::int32_t streamId,
                         std::int32_t numberOfMessages, std::int32_t messageLength, bool disableRecording)
-        : disableRecording_(disableRecording),
-          ctx_(cfg),
-          archive_(archive::AeronArchive::connect(ctx_)),
-          aeron_(archive_->context().aeron()),
-          channel_(channel),
-          streamId_(streamId),
-          numberOfMessages_(numberOfMessages),
-          messageLength_(messageLength),
-          recordingThread_([this] {
-              if (!disableRecording_) {
-                  runRecordingEventsPoller();
-              }
-          }) {}
+        : disableRecording_(disableRecording)
+        , ctx_(cfg)
+        , archive_(archive::AeronArchive::connect(ctx_))
+        , aeron_(archive_->context().aeron())
+        , channel_(channel)
+        , streamId_(streamId)
+        , numberOfMessages_(numberOfMessages)
+        , messageLength_(messageLength)
+        , recordingThread_([this] {
+            if (!disableRecording_) {
+                runRecordingEventsPoller();
+            }
+        }) {}
 
-    ~RecordingThroughput() { recordingThread_.join(); }
+    ~RecordingThroughput() {
+        recordingThread_.join();
+        stopRecording();
+    }
 
     void startRecording() {
         if (!disableRecording_) {
             archive_->startRecording(channel_, streamId_, codecs::SourceLocation::LOCAL);
             std::cout << "started recording of " << channel_ << ":" << streamId_ << '\n';
+        }
+    }
+
+    void stopRecording() {
+        if (!disableRecording_) {
+            archive_->stopRecording(channel_, streamId_);
+            std::cout << "stopped recording of " << channel_ << ":" << streamId_ << '\n';
         }
     }
 
