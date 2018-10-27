@@ -105,10 +105,10 @@ public:
             }
         }
 
+        stopPosition_ = publication->position();
+
         std::int64_t durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(now() - start).count();
         std::int64_t msgRate = (numberOfMessages_ / durationMs) * 1000;
-
-        stopPosition_ = publication->position();
 
         std::cout << "all messages are published. Stop position: " << stopPosition_ << ", msg rate = " << msgRate
                   << " msg/sec\n";
@@ -183,7 +183,6 @@ private:
         return [this](std::int64_t recordingId, std::int64_t startPosition, std::int64_t position) {
             std::cout << "Recording #" << recordingId << " stopped at " << position << " position\n";
             isRecording_ = false;
-            running = false;
         };
     }
 
@@ -244,12 +243,18 @@ int main(int argc, char* argv[]) {
         }
 
         RecordingThroughput test(*cfg, channel, streamId, numberOfMessages, messageLength, disableRecording);
+        char repeat;
 
         test.startRecording();
+        do {
+            test.streamMessagesForRecording();
 
-        test.streamMessagesForRecording();
+            std::cout << "repeat? [y/n]: ";
+            std::cin >> repeat;
+        } while (repeat == 'y');
 
         std::cout << "Shutting down...\n";
+        running = false;
     } catch (const archive::ArchiveException& e) {
         std::cerr << "aeron archive exception: " << e.what() << " (" << e.where() << ")\n" << '\n';
         return 1;
