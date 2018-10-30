@@ -37,7 +37,7 @@ ExternalProject_Add(aeron_project
         -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
         -DCMAKE_EXE_LINKER_FLAGS=${CMAKE_EXE_LINKER_FLAGS}
         -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    BUILD_BYPRODUCTS "${AERON_PREFIX}/src/aeron_project-build/${Aeron_CLIENT_LIB_PATH}"
+    BUILD_BYPRODUCTS "${Aeron_PREFIX}/src/aeron_project-build/${Aeron_CLIENT_LIB_PATH}"
     INSTALL_COMMAND ""
 )
 
