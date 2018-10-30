@@ -15,7 +15,7 @@
 #
 
 # install Aeron
-set(Aeron_VERSION "1.11.1" CACHE STRING "Aeron version")
+set(Aeron_VERSION "1.11.3" CACHE STRING "Aeron version")
 set(Aeron_PREFIX ${THIRDPARTY_BINARY_DIR}/aeron)
 set(Aeron_SOURCE_DIR ${Aeron_PREFIX}/src/aeron)
 set(Aeron_CLIENT_LIB_PATH ${CMAKE_CFG_INTDIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}aeron_client${CMAKE_STATIC_LIBRARY_SUFFIX})
