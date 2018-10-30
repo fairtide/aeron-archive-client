@@ -286,6 +286,24 @@ void AeronArchive::truncateRecording(std::int64_t recordingId, std::int64_t posi
         "truncate recording");
 }
 
+std::int64_t AeronArchive::getStopPosition(std::int64_t recordingId) {
+    return callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->getStopPosition(recordingId, correlationId, controlSessionId_);
+        },
+        "get recording stop position");
+}
+
+std::int32_t AeronArchive::findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channel,
+                                                     std::int32_t streamId, std::int32_t sessionId) {
+    return callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->findLastMatchingRecording(minRecordingId, channel, streamId, sessionId,
+                                                                  correlationId, controlSessionId_);
+        },
+        "find last matching recording");
+}
+
 std::int64_t AeronArchive::awaitSessionOpened(std::int64_t correlationId) {
     auto deadline = Clock::now() + messageTimeoutNs_;
 

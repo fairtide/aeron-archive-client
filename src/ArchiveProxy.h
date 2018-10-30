@@ -72,6 +72,11 @@ public:
     bool truncateRecording(std::int64_t recordingId, std::int64_t position, std::int64_t correlationId,
                            std::int64_t controlSessionId);
 
+    bool getStopPosition(std::int64_t recordingId, std::int64_t correlationId, std::int64_t controlSessionId);
+
+    bool findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channel, std::int32_t streamId,
+                                   std::int32_t sessionId, std::int64_t correlationId, std::int64_t controlSessionId);
+
 private:
     template <typename T>
     T& wrapAndApplyHeader(T& msg) {
