@@ -2,7 +2,7 @@
 
 C++ implementation of Aeron Archive client.
 
-Current version (v0.2.4) implements all commands from the Aeron Archive protocol. The C++ library interface is almost the same as the Java client library one originally created by the [Aeron](https://github.com/real-logic/aeron) team.
+Current version (v0.2.5) implements all commands from the Aeron Archive protocol. The C++ library interface is almost the same as the Java client library one originally created by the [Aeron](https://github.com/real-logic/aeron) team.
 
 More details about persistent streams and Aeron Archive are available in the [real-logic/aeron wiki](https://github.com/real-logic/aeron/wiki/Aeron-Archive).
 
@@ -33,6 +33,7 @@ There are some samples provided:
 
 * **RecordedBasicPublisher** - a simple publisher which creates a recording session with the archiving media driver
 * **ReplayedBasicSubscriber** - a simple consumer of archived data
+* **RecordingThroughput** - a tool to measure recording throughput
 * **DriverControl** - a tool to control the archiving media driver (start/stop/delete/list recordings on a channel/stream id)
 
 To run these samples one need to start the archiving media driver first:
