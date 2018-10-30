@@ -15,7 +15,7 @@
 #
 
 # install Aeron
-set(Aeron_VERSION "1.11.1")
+set(Aeron_VERSION "1.11.1" CACHE STRING "Aeron version")
 set(Aeron_PREFIX ${THIRDPARTY_BINARY_DIR}/aeron)
 set(Aeron_SOURCE_DIR ${Aeron_PREFIX}/src/aeron)
 set(Aeron_CLIENT_LIB_PATH ${CMAKE_CFG_INTDIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}aeron_client${CMAKE_STATIC_LIBRARY_SUFFIX})
@@ -38,3 +38,7 @@ set(Aeron_INCLUDE_DIR ${source_dir}/aeron-client/src/main/cpp CACHE STRING "Aero
 set(Aeron_RESOURCES_DIR ${source_dir}/aeron-archive/src/main/resources CACHE STRING "Aeron resources")
 set(Aeron_CLIENT_LIB ${binary_dir}/${Aeron_CLIENT_LIB_PATH} CACHE STRING "Aeron client library")
 
+add_library(aeron INTERFACE)
+add_dependencies(aeron aeron_project)
+target_include_directories(aeron INTERFACE ${Aeron_INCLUDE_DIR})
+target_link_libraries(aeron INTERFACE ${Aeron_CLIENT_LIB})

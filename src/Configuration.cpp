@@ -89,7 +89,7 @@ Configuration::Configuration() {
 }
 
 Configuration::Configuration(const std::string& filename) {
-    util::PropertiesReader pr(filename);
+    util::PropertiesReader pr(filename, true);
 
     messageTimeoutNs = pr.get(MESSAGE_TIMEOUT_PROP_NAME, MESSAGE_TIMEOUT_DEFAULT_NS);
     controlChannel = pr.get(CONTROL_CHANNEL_PROP_NAME, CONTROL_CHANNEL_DEFAULT);

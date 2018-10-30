@@ -19,7 +19,7 @@ add_library(sample_utils STATIC
 
 target_link_libraries(sample_utils
     aeron_archive_client
-    ${Aeron_CLIENT_LIB}
+    aeron
 )
 
 find_package(Boost REQUIRED
@@ -38,12 +38,14 @@ endfunction()
 # sample apps
 aeron_archive_sample(DriverControl DriverControl.cpp)
 aeron_archive_sample(RecordedBasicPublisher RecordedBasicPublisher.cpp)
+aeron_archive_sample(RecordingThroughput RecordingThroughput.cpp)
 aeron_archive_sample(ReplayedBasicSubscriber ReplayedBasicSubscriber.cpp)
 
 install(
     TARGETS
         DriverControl
         RecordedBasicPublisher
+        RecordingThroughput
         ReplayedBasicSubscriber
     DESTINATION
         bin)

@@ -118,8 +118,6 @@ void AeronArchive::checkForErrorResponse() {
 
 std::shared_ptr<aeron::Publication> AeronArchive::addRecordedPublication(const std::string& channel,
                                                                          std::int32_t streamId) {
-    std::unique_lock<std::mutex> lock(lock_);
-
     std::int64_t pubId = aeron_->addPublication(channel, streamId);
     std::shared_ptr<aeron::Publication> publication;
     while (!(publication = aeron_->findPublication(pubId))) {
@@ -139,8 +137,6 @@ std::shared_ptr<aeron::Publication> AeronArchive::addRecordedPublication(const s
 
 std::shared_ptr<aeron::ExclusivePublication> AeronArchive::addRecordedExclusivePublication(const std::string& channel,
                                                                                            std::int32_t streamId) {
-    std::unique_lock<std::mutex> lock(lock_);
-
     std::int64_t pubId = aeron_->addExclusivePublication(channel, streamId);
     std::shared_ptr<aeron::ExclusivePublication> publication;
     while (!(publication = aeron_->findExclusivePublication(pubId))) {
@@ -181,6 +177,12 @@ void AeronArchive::stopRecording(const std::string& channel, std::int32_t stream
 }
 
 void AeronArchive::stopRecording(const aeron::Publication& publication) {
+    const std::string& recordingChannel = ChannelUri::addSessionId(publication.channel(), publication.sessionId());
+
+    stopRecording(recordingChannel, publication.streamId());
+}
+
+void AeronArchive::stopRecording(const aeron::ExclusivePublication& publication) {
     const std::string& recordingChannel = ChannelUri::addSessionId(publication.channel(), publication.sessionId());
 
     stopRecording(recordingChannel, publication.streamId());

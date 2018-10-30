@@ -29,8 +29,7 @@ namespace util {
 
 class PropertiesReader {
 public:
-    explicit PropertiesReader(const std::string& filename);
-    PropertiesReader(const std::string& filename, std::function<void(const std::exception&)>&& onError);
+    explicit PropertiesReader(const std::string& filename, bool skipErrors);
     ~PropertiesReader() = default;
 
     template <typename T>

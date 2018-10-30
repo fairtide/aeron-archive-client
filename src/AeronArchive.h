@@ -68,6 +68,8 @@ public:
 
     void stopRecording(const aeron::Publication& publication);
 
+    void stopRecording(const aeron::ExclusivePublication& publication);
+
     void stopRecording(std::int64_t subscriptionId);
 
     std::int64_t startReplay(std::int64_t recordingId, std::int64_t position, std::int64_t length,

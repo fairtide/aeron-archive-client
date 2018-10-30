@@ -15,7 +15,7 @@
 #
 
 # install GTEST
-set(GTEST_VERSION "release-1.8.1")
+set(GTEST_VERSION "release-1.8.1" CACHE STRING "gtest version")
 set(GTEST_PREFIX ${THIRDPARTY_BINARY_DIR}/googletest)
 set(GTEST_SOURCE_DIR ${GTEST_PREFIX}/src/googletest)
 
