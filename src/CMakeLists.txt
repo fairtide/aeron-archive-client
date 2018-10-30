@@ -28,7 +28,7 @@ add_custom_target(generated_sbe_code
     COMMENT "Generating SBE stubs"
 )
 
-add_dependencies(generated_sbe_code sbe)
+add_dependencies(generated_sbe_code aeron sbe)
 
 # static library
 set(SOURCE
@@ -70,7 +70,7 @@ target_include_directories(aeron_archive_client
 )
 
 target_link_libraries(aeron_archive_client
-    ${Aeron_CLIENT_LIB}
+    aeron
     sbe
     ${CMAKE_THREAD_LIBS_INIT}
 )

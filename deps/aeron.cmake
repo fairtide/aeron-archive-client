@@ -38,3 +38,7 @@ set(Aeron_INCLUDE_DIR ${source_dir}/aeron-client/src/main/cpp CACHE STRING "Aero
 set(Aeron_RESOURCES_DIR ${source_dir}/aeron-archive/src/main/resources CACHE STRING "Aeron resources")
 set(Aeron_CLIENT_LIB ${binary_dir}/${Aeron_CLIENT_LIB_PATH} CACHE STRING "Aeron client library")
 
+add_library(aeron INTERFACE)
+add_dependencies(aeron aeron_project)
+target_include_directories(aeron INTERFACE ${Aeron_INCLUDE_DIR})
+target_link_libraries(aeron INTERFACE ${Aeron_CLIENT_LIB})

@@ -19,7 +19,7 @@ add_library(sample_utils STATIC
 
 target_link_libraries(sample_utils
     aeron_archive_client
-    ${Aeron_CLIENT_LIB}
+    aeron
 )
 
 find_package(Boost REQUIRED
