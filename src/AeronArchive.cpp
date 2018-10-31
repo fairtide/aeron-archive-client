@@ -403,14 +403,22 @@ void AeronArchive::pollNextResponse(std::int64_t correlationId, const TimePoint&
 
 std::int64_t AeronArchive::pollForDescriptors(std::int64_t correlationId, std::int32_t recordCount,
                                               RecordingDescriptorConsumer&& consumer) {
+    std::int32_t existingRemainCount = recordCount;
     auto deadline = Clock::now() + messageTimeoutNs_;
+
     recordingDescriptorPoller_->reset(correlationId, recordCount, std::move(consumer));
 
     while (true) {
         std::int32_t fragments = recordingDescriptorPoller_->poll();
+        std::int32_t remainingRecordCount = recordingDescriptorPoller_->remainingRecordCount();
 
         if (recordingDescriptorPoller_->isDispatchComplete()) {
-            return recordCount - recordingDescriptorPoller_->remainingRecordCount();
+            return recordCount - remainingRecordCount;
+        }
+
+        if (existingRemainCount != remainingRecordCount) {
+            existingRemainCount = remainingRecordCount;
+            deadline = Clock::now() + messageTimeoutNs_;
         }
 
         aeron_->conductorAgentInvoker().invoke();
