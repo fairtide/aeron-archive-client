@@ -17,12 +17,14 @@
 #include "io_aeron_archive_codecs/CloseSessionRequest.h"
 #include "io_aeron_archive_codecs/ConnectRequest.h"
 #include "io_aeron_archive_codecs/ExtendRecordingRequest.h"
+#include "io_aeron_archive_codecs/FindLastMatchingRecordingRequest.h"
 #include "io_aeron_archive_codecs/ListRecordingRequest.h"
 #include "io_aeron_archive_codecs/ListRecordingsForUriRequest.h"
 #include "io_aeron_archive_codecs/ListRecordingsRequest.h"
 #include "io_aeron_archive_codecs/RecordingPositionRequest.h"
 #include "io_aeron_archive_codecs/ReplayRequest.h"
 #include "io_aeron_archive_codecs/StartRecordingRequest.h"
+#include "io_aeron_archive_codecs/StopPositionRequest.h"
 #include "io_aeron_archive_codecs/StopRecordingRequest.h"
 #include "io_aeron_archive_codecs/StopRecordingSubscriptionRequest.h"
 #include "io_aeron_archive_codecs/StopReplayRequest.h"
@@ -36,8 +38,8 @@ namespace codecs = io::aeron::archive::codecs;
 namespace aeron {
 namespace archive {
 
-ArchiveProxy::ArchiveProxy(const std::shared_ptr<aeron::Publication>& publication, std::int64_t connectTimeoutNs,
-                           std::int32_t retryAttempts)
+ArchiveProxy::ArchiveProxy(const std::shared_ptr<aeron::ExclusivePublication>& publication,
+                           std::int64_t connectTimeoutNs, std::int32_t retryAttempts)
     : publication_(publication)
     , buffer_(&underlyingBuffer_[0], underlyingBuffer_.size())
     , connectTimeoutNs_(connectTimeoutNs)
@@ -226,6 +228,34 @@ bool ArchiveProxy::truncateRecording(std::int64_t recordingId, std::int64_t posi
         .correlationId(correlationId)
         .recordingId(recordingId)
         .position(position);
+
+    return offer(msg.encodedLength());
+}
+
+bool ArchiveProxy::getStopPosition(std::int64_t recordingId, std::int64_t correlationId, std::int64_t controlSessionId)
+{
+    codecs::StopPositionRequest msg;
+
+    wrapAndApplyHeader(msg)
+        .controlSessionId(controlSessionId)
+        .correlationId(correlationId)
+        .recordingId(recordingId);
+
+    return offer(msg.encodedLength());
+}
+
+bool ArchiveProxy::findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channel, std::int32_t streamId,
+                                   std::int32_t sessionId, std::int64_t correlationId, std::int64_t controlSessionId)
+{
+    codecs::FindLastMatchingRecordingRequest msg;
+
+    wrapAndApplyHeader(msg)
+        .controlSessionId(controlSessionId)
+        .correlationId(correlationId)
+        .minRecordingId(minRecordingId)
+        .sessionId(sessionId)
+        .streamId(streamId)
+        .putChannel(channel);
 
     return offer(msg.encodedLength());
 }

@@ -98,6 +98,11 @@ public:
 
     void truncateRecording(std::int64_t recordingId, std::int64_t position);
 
+    std::int64_t getStopPosition(std::int64_t recordingId);
+
+    std::int32_t findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channel,
+                                           std::int32_t streamId, std::int32_t sessionId);
+
 private:
     std::int64_t awaitSessionOpened(std::int64_t correlationId);
     void awaitConnection(const TimePoint& deadline);

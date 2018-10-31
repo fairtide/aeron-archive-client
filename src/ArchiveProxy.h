@@ -29,7 +29,7 @@ namespace archive {
 
 class ArchiveProxy {
 public:
-    ArchiveProxy(const std::shared_ptr<aeron::Publication>& publication, std::int64_t connectTimeoutNs,
+    ArchiveProxy(const std::shared_ptr<aeron::ExclusivePublication>& publication, std::int64_t connectTimeoutNs,
                  std::int32_t retryAttempts);
 
     bool connect(const std::string& responseChannel, std::int32_t responseStreamId, std::int64_t correlationId);
@@ -72,6 +72,11 @@ public:
     bool truncateRecording(std::int64_t recordingId, std::int64_t position, std::int64_t correlationId,
                            std::int64_t controlSessionId);
 
+    bool getStopPosition(std::int64_t recordingId, std::int64_t correlationId, std::int64_t controlSessionId);
+
+    bool findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channel, std::int32_t streamId,
+                                   std::int32_t sessionId, std::int64_t correlationId, std::int64_t controlSessionId);
+
 private:
     template <typename T>
     T& wrapAndApplyHeader(T& msg) {
@@ -91,7 +96,7 @@ private:
     bool offerWithTimeout(std::int32_t length, aeron::AgentInvoker<aeron::ClientConductor>* aeronClientInvoker);
 
 private:
-    std::shared_ptr<aeron::Publication> publication_;
+    std::shared_ptr<aeron::ExclusivePublication> publication_;
     concurrent::YieldingIdleStrategy idle_;
     // TODO: size of the buffer - should it be configurable?
     // should it be equal to the maximum size of all SBE messages?
