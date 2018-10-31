@@ -50,10 +50,9 @@ AeronArchive::AeronArchive(const Context& ctx)
 
     controlResponsePoller_ = std::make_unique<ControlResponsePoller>(subscription, FRAGMENT_LIMIT);
 
-    // TODO: Java implementation uses exclusive publication
-    std::int64_t pubId = aeron_->addPublication(ctx_.controlRequestChannel(), ctx_.controlRequestStreamId());
-    std::shared_ptr<Publication> publication;
-    while (!(publication = aeron_->findPublication(pubId))) {
+    std::int64_t pubId = aeron_->addExclusivePublication(ctx_.controlRequestChannel(), ctx_.controlRequestStreamId());
+    std::shared_ptr<ExclusivePublication> publication;
+    while (!(publication = aeron_->findExclusivePublication(pubId))) {
         std::this_thread::yield();
     }
 
