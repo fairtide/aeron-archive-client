@@ -38,8 +38,8 @@ void sigIntHandler(int) { running = false; }
 aeron::fragment_handler_t printStringMessage() {
     return [&](const aeron::AtomicBuffer& buffer, aeron::util::index_t offset, aeron::util::index_t length,
                const aeron::Header& header) {
-        std::cout << "Message to stream " << header.streamId() << " from session " << header.sessionId();
-        std::cout << "(" << length << "@" << offset << ") <<";
+        std::cout << "Message to stream " << header.streamId() << " from session " << header.sessionId() << ", stream: " << header.streamId();
+        std::cout << "(" << length << "@" << offset << "@" << header.position() << ") <<";
         std::cout << std::string(reinterpret_cast<const char*>(buffer.buffer()) + offset,
                                  static_cast<std::size_t>(length))
                   << ">>" << std::endl;
@@ -55,13 +55,16 @@ int main(int argc, char* argv[]) {
     std::int32_t streamId;
     std::int32_t frameCountLimit;
     std::int64_t recId;
+    std::int64_t position;
 
     po::options_description desc("Options");
     desc.add_options()("help", "print help message")(
         "channel,c", po::value<std::string>(&channel)->default_value("aeron:udp?endpoint=localhost:40123"))(
         "stream-id,i", po::value<std::int32_t>(&streamId)->default_value(10))(
         "frame-count-limit", po::value<std::int32_t>(&frameCountLimit)->default_value(20))(
-        "recId", po::value<std::int64_t>(&recId)->default_value(-1))("file,f", po::value<std::string>(&configFile));
+        "recId", po::value<std::int64_t>(&recId)->default_value(-1))(
+        "position", po::value<std::int64_t>(&position)->default_value(0))(
+        "file,f", po::value<std::string>(&configFile));
 
     try {
         po::variables_map vm;
@@ -91,7 +94,21 @@ int main(int argc, char* argv[]) {
         std::int64_t recordingId =
             (recId != -1) ? recId : aeron::archive::findLatestRecordingId(*archive, channel, streamId);
         auto subscription =
-            archive->replay(recordingId, 0, std::numeric_limits<std::int64_t>::max(), channel, replayStreamId);
+            archive->replay(recordingId, position, std::numeric_limits<std::int64_t>::max(), channel, replayStreamId,
+                    [](aeron::Image& image) {
+                        std::cout << "onAvailableImage: sourceIdty: " << image.sourceIdentity()
+                            << ", session: " << image.sessionId() << ", joinPos: " << image.joinPosition()
+                            << ", pos: " << image.position()
+                            << ", isEos: " << image.isEndOfStream()
+                            << ", isClosed: " << image.isClosed() << '\n';
+                    },
+                    [](aeron::Image& image) {
+                        std::cout << "onUnavailableImage: sourceIdty: " << image.sourceIdentity()
+                            << ", session: " << image.sessionId() << ", joinPos: " << image.joinPosition()
+                            << ", pos: " << image.position()
+                            << ", isEos: " << image.isEndOfStream()
+                            << ", isClosed: " << image.isClosed() << '\n';
+                    });
 
         // polling loop
         auto handler = printStringMessage();
@@ -104,7 +121,8 @@ int main(int argc, char* argv[]) {
             if (0 == fragmentsRead) {
                 if (subscription->pollEndOfStreams([](aeron::Image& image) {
                         std::cout << "EOS image correlationId=" << image.correlationId()
-                                  << " sessionId=" << image.sessionId() << " from " << image.sourceIdentity() << '\n';
+                                  << " sessionId=" << image.sessionId() << " from " << image.sourceIdentity()
+                                  << " position=" << image.position() << '\n';
                     })) {
                     reachedEos = true;
                 }
