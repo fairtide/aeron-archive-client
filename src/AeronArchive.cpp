@@ -50,10 +50,9 @@ AeronArchive::AeronArchive(const Context& ctx)
 
     controlResponsePoller_ = std::make_unique<ControlResponsePoller>(subscription, FRAGMENT_LIMIT);
 
-    // TODO: Java implementation uses exclusive publication
-    std::int64_t pubId = aeron_->addPublication(ctx_.controlRequestChannel(), ctx_.controlRequestStreamId());
-    std::shared_ptr<Publication> publication;
-    while (!(publication = aeron_->findPublication(pubId))) {
+    std::int64_t pubId = aeron_->addExclusivePublication(ctx_.controlRequestChannel(), ctx_.controlRequestStreamId());
+    std::shared_ptr<ExclusivePublication> publication;
+    while (!(publication = aeron_->findExclusivePublication(pubId))) {
         std::this_thread::yield();
     }
 
@@ -286,6 +285,24 @@ void AeronArchive::truncateRecording(std::int64_t recordingId, std::int64_t posi
         "truncate recording");
 }
 
+std::int64_t AeronArchive::getStopPosition(std::int64_t recordingId) {
+    return callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->getStopPosition(recordingId, correlationId, controlSessionId_);
+        },
+        "get recording stop position");
+}
+
+std::int32_t AeronArchive::findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channel,
+                                                     std::int32_t streamId, std::int32_t sessionId) {
+    return callAndPollForResponse(
+        [&](std::int64_t correlationId) {
+            return this->archiveProxy_->findLastMatchingRecording(minRecordingId, channel, streamId, sessionId,
+                                                                  correlationId, controlSessionId_);
+        },
+        "find last matching recording");
+}
+
 std::int64_t AeronArchive::awaitSessionOpened(std::int64_t correlationId) {
     auto deadline = Clock::now() + messageTimeoutNs_;
 
@@ -386,14 +403,22 @@ void AeronArchive::pollNextResponse(std::int64_t correlationId, const TimePoint&
 
 std::int64_t AeronArchive::pollForDescriptors(std::int64_t correlationId, std::int32_t recordCount,
                                               RecordingDescriptorConsumer&& consumer) {
+    std::int32_t existingRemainCount = recordCount;
     auto deadline = Clock::now() + messageTimeoutNs_;
+
     recordingDescriptorPoller_->reset(correlationId, recordCount, std::move(consumer));
 
     while (true) {
         std::int32_t fragments = recordingDescriptorPoller_->poll();
+        std::int32_t remainingRecordCount = recordingDescriptorPoller_->remainingRecordCount();
 
         if (recordingDescriptorPoller_->isDispatchComplete()) {
-            return recordCount - recordingDescriptorPoller_->remainingRecordCount();
+            return recordCount - remainingRecordCount;
+        }
+
+        if (existingRemainCount != remainingRecordCount) {
+            existingRemainCount = remainingRecordCount;
+            deadline = Clock::now() + messageTimeoutNs_;
         }
 
         aeron_->conductorAgentInvoker().invoke();
