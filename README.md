@@ -2,7 +2,7 @@
 
 C++ implementation of Aeron Archive client.
 
-Current version (v0.2.6) implements all commands from the Aeron Archive protocol. The C++ library interface is almost the same as the Java client library one originally created by the [Aeron](https://github.com/real-logic/aeron) team.
+Current version (v0.2.7) implements all commands from the Aeron Archive protocol. The C++ library interface is almost the same as the Java client library one originally created by the [Aeron](https://github.com/real-logic/aeron) team.
 
 More details about persistent streams and Aeron Archive are available in the [real-logic/aeron wiki](https://github.com/real-logic/aeron/wiki/Aeron-Archive).
 
@@ -39,18 +39,35 @@ There are some samples provided:
 To run these samples one need to start the archiving media driver first:
 
 ```shell
-$ java -cp <path-to>/aeron-all-1.11.1.jar io.aeron.archive.ArchivingMediaDriver
+$ java -cp <path-to>/aeron-all-1.11.3.jar io.aeron.archive.ArchivingMediaDriver
 ```
 
 Then start **RecordedBasicPublisher** and some consumer which will subscribe to the publisher. The consumer is required for the driver to start recording. One could use a basic subscriber from Aeron samples
 
 ```shell
-$ java -cp <path-to>/aeron-all-1.11.1.jar io.aeron.samples.BasicSubscriber
+$ java -cp <path-to>/aeron-all-1.11.3.jar io.aeron.samples.BasicSubscriber
 ```
 
 The **ReplayedBasicSubscriber** will replay the  recorded stream.
 
-Fine tuning of the client can be done via a property file.
+## Configuration
+
+Fine tuning of the client can be done via a property file or via environment variables
+
+| Environment variable | Corresponding Aeron property | Default value |
+| ----------- | ----------- | ----------- |
+| AERON_ARCHIVE_MESSAGE_TIMEOUT | aeron.archive.message.timeout | 5000000000 |
+| AERON_ARCHIVE_CONTROL_CHANNEL | aeron.archive.control.channel | aeron:udp?endpoint=localhost:8010 |
+| AERON_ARCHIVE_CONTROL_STREAM_ID | aeron.archive.control.stream.id | 10 |
+| AERON_ARCHIVE_LOCAL_CONTROL_CHANNEL | aeron.archive.local.control.channel | aeron:ipc |
+| AERON_ARCHIVE_LOCAL_CONTROL_STREAM_ID | aeron.archive.local.control.stream.id | 11 |
+| AERON_ARCHIVE_CONTROL_RESPONSE_CHANNEL | aeron.archive.control.response.channel | aeron:udp?endpoint=localhost:8020 |
+| AERON_ARCHIVE_CONTROL_RESPONSE_STREAM_ID | aeron.archive.control.response.stream.id | 20 |
+| AERON_ARCHIVE_RECORDING_EVENTS_CHANNEL | aeron.archive.recording.events.channel | aeron:udp?endpoint=localhost:8030 |
+| AERON_ARCHIVE_RECORDING_EVENTS_STREAM_ID | aeron.archive.recording.events.stream.id | 30 |
+| AERON_ARCHIVE_CONTROL_TERM_BUFFER_SPARSE | aeron.archive.control.term.buffer.sparse | true |
+| AERON_ARCHIVE_CONTROL_TERM_BUFFER_LENGTH | aeron.archive.control.term.buffer.length | 65536 |
+| AERON_ARCHIVE_CONTROL_MTU_LENGTH | aeron.archive.control.mtu.length | 1408 |
 
 ## Licence (See LICENSE file for full license)
 Copyright 2018 Fairtide Pte. Ltd.
