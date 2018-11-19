@@ -37,9 +37,6 @@ aeron.archive.recording.events.stream.id=22
 )#";
 }
 
-void SetDefaultEnvs() {
-}
-
 class ConfigurationTest : public ::testing::Test {
 protected:
     void SetUp() override {
