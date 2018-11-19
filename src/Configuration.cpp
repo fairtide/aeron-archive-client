@@ -14,95 +14,96 @@
  * limitations under the License.
  */
 
+#include <cstdlib>
+
 #include "util/PropertiesReader.h"
 #include "Configuration.h"
 
+#define DECLARE_PROPERTY(name, cap_name, type, key_name, value) \
+    struct name { \
+        static const char * key() { return key_name; }; \
+        static type defaultValue() { return type(value); }; \
+        static type getEnvVarOrDefault() { \
+            char * evv = std::getenv("AERON_ARCHIVE_"#cap_name); \
+            if (!evv) return defaultValue(); \
+            return boost::lexical_cast<type>(evv); \
+        }}; \
+    static type get##name() { return name::getEnvVarOrDefault(); }
+
 namespace {
 // Timeout when waiting on a message to be sent or received.
-static const std::string MESSAGE_TIMEOUT_PROP_NAME = "aeron.archive.message.timeout";
-static const std::int64_t MESSAGE_TIMEOUT_DEFAULT_NS = 5 * 1000000000L;
+DECLARE_PROPERTY(MessageTimeout, MESSAGE_TIMEOUT, std::int64_t, "aeron.archive.message.timeout", 5 * 1000000000L)
 
 // Channel for sending control messages to an archive.
-static const std::string CONTROL_CHANNEL_PROP_NAME = "aeron.archive.control.channel";
-static const std::string CONTROL_CHANNEL_DEFAULT = "aeron:udp?endpoint=localhost:8010";
+DECLARE_PROPERTY(ControlChannel, CONTROL_CHANNEL, std::string, "aeron.archive.control.channel", "aeron:udp?endpoint=localhost:8010")
 
 // Stream id within a channel for sending control messages to an archive.
-static const std::string CONTROL_STREAM_ID_PROP_NAME = "aeron.archive.control.stream.id";
-static const std::int32_t CONTROL_STREAM_ID_DEFAULT = 10;
+DECLARE_PROPERTY(ControlStreamId, CONTROL_STREAM_ID, std::int32_t, "aeron.archive.control.stream.id", 10)
 
 // Channel for sending control messages to a driver local archive. Default to IPC.
-static const std::string LOCAL_CONTROL_CHANNEL_PROP_NAME = "aeron.archive.local.control.channel";
-static const std::string LOCAL_CONTROL_CHANNEL_DEFAULT = "aeron:ipc";
+DECLARE_PROPERTY(LocalControlChannel, LOCAL_CONTROL_CHANNEL, std::string, "aeron.archive.local.control.channel", "aeron:ipc")
 
 // Stream id within a channel for sending control messages to a driver local archive.
-static const std::string LOCAL_CONTROL_STREAM_ID_PROP_NAME = "aeron.archive.local.control.stream.id";
-static const std::int32_t LOCAL_CONTROL_STREAM_ID_DEFAULT = 11;
+DECLARE_PROPERTY(LocalControlStreamId, LOCAL_CONTROL_STREAM_ID, std::int32_t, "aeron.archive.local.control.stream.id", 11)
 
 // Channel for receiving control response messages from an archive.
-static const std::string CONTROL_RESPONSE_CHANNEL_PROP_NAME = "aeron.archive.control.response.channel";
-static const std::string CONTROL_RESPONSE_CHANNEL_DEFAULT = "aeron:udp?endpoint=localhost:8020";
+DECLARE_PROPERTY(ControlResponseChannel, CONTROL_RESPONSE_CHANNEL, std::string, "aeron.archive.control.response.channel", "aeron:udp?endpoint=localhost:8020")
 
 // Stream id within a channel for receiving control messages from an archive.
-static const std::string CONTROL_RESPONSE_STREAM_ID_PROP_NAME = "aeron.archive.control.response.stream.id";
-static const std::int32_t CONTROL_RESPONSE_STREAM_ID_DEFAULT = 20;
+DECLARE_PROPERTY(ControlResponseStreamId, CONTROL_RESPONSE_STREAM_ID, std::int32_t, "aeron.archive.control.response.stream.id", 20)
 
 // Channel for receiving progress events of recordings from an archive.
 // For production it is recommended that multicast or dynamic multi-destination-cast (MDC) is used to allow
 // for dynamic subscribers.
-static const std::string RECORDING_EVENTS_CHANNEL_PROP_NAME = "aeron.archive.recording.events.channel";
-static const std::string RECORDING_EVENTS_CHANNEL_DEFAULT = "aeron:udp?endpoint=localhost:8030";
+DECLARE_PROPERTY(RecordingEventsChannel, RECORDING_EVENTS_CHANNEL, std::string, "aeron.archive.recording.events.channel", "aeron:udp?endpoint=localhost:8030")
 
 // Stream id within a channel for receiving progress of recordings from an archive.
-static const std::string RECORDING_EVENTS_STREAM_ID_PROP_NAME = "aeron.archive.recording.events.stream.id";
-static const std::int32_t RECORDING_EVENTS_STREAM_ID_DEFAULT = 30;
+DECLARE_PROPERTY(RecordingEventsStreamId, RECORDING_EVENTS_STREAM_ID, std::int32_t, "aeron.archive.recording.events.stream.id", 30)
 
 // Sparse term buffer indicator for control streams.
-static const std::string CONTROL_TERM_BUFFER_SPARSE_PROP_NAME = "aeron.archive.control.term.buffer.sparse";
-static const bool CONTROL_TERM_BUFFER_SPARSE_DEFAULT = true;
+DECLARE_PROPERTY(ControlTermBufferSparse, CONTROL_TERM_BUFFER_SPARSE, bool, "aeron.archive.control.term.buffer.sparse", true)
 
 // Term length for control streams.
 // Low term length for control channel reflects expected low bandwidth usage.
-static const std::string CONTROL_TERM_BUFFER_LENGTH_PROP_NAME = "aeron.archive.control.term.buffer.length";
-static const std::int32_t CONTROL_TERM_BUFFER_LENGTH_DEFAULT = 64 * 1024;
+DECLARE_PROPERTY(ControlTermBufferLength, CONTROL_TERM_BUFFER_LENGTH, std::int32_t, "aeron.archive.control.term.buffer.length", 64 * 1024)
 
 // MTU length for control streams.
-static const std::string CONTROL_MTU_LENGTH_PROP_NAME = "aeron.archive.control.mtu.length";
-static const std::int32_t CONTROL_MTU_LENGTH_DEFAULT = 1408;
+DECLARE_PROPERTY(ControlMtuLength, CONTROL_MTU_LENGTH, std::int32_t, "aeron.archive.control.mtu.length", 1408)
 }  // namespace
 
 namespace aeron {
 namespace archive {
 
 Configuration::Configuration() {
-    messageTimeoutNs = MESSAGE_TIMEOUT_DEFAULT_NS;
-    controlChannel = CONTROL_CHANNEL_DEFAULT;
-    controlStreamId = CONTROL_STREAM_ID_DEFAULT;
-    localControlChannel = LOCAL_CONTROL_CHANNEL_DEFAULT;
-    localControlStreamId = LOCAL_CONTROL_STREAM_ID_DEFAULT;
-    controlResponseChannel = CONTROL_RESPONSE_CHANNEL_DEFAULT;
-    controlResponseStreamId = CONTROL_RESPONSE_STREAM_ID_DEFAULT;
-    recordingEventsChannel = RECORDING_EVENTS_CHANNEL_DEFAULT;
-    recordingEventsStreamId = RECORDING_EVENTS_STREAM_ID_DEFAULT;
-    controlTermBufferSparse = CONTROL_TERM_BUFFER_SPARSE_DEFAULT;
-    controlTermBufferLength = CONTROL_TERM_BUFFER_LENGTH_DEFAULT;
-    controlMtuLength = CONTROL_MTU_LENGTH_DEFAULT;
+    messageTimeoutNs = getMessageTimeout();
+    controlChannel = getControlChannel();
+    controlStreamId = getControlStreamId();
+    localControlChannel = getLocalControlChannel();
+    localControlStreamId = getLocalControlStreamId();
+    controlResponseChannel = getControlResponseChannel();
+    controlResponseStreamId = getControlResponseStreamId();
+    recordingEventsChannel = getRecordingEventsChannel();
+    recordingEventsStreamId = getRecordingEventsStreamId();
+    controlTermBufferSparse = getControlTermBufferSparse();
+    controlTermBufferLength = getControlTermBufferLength();
+    controlMtuLength = getControlMtuLength();
 }
 
 Configuration::Configuration(const std::string& filename) {
     util::PropertiesReader pr(filename, true);
 
-    messageTimeoutNs = pr.get(MESSAGE_TIMEOUT_PROP_NAME, MESSAGE_TIMEOUT_DEFAULT_NS);
-    controlChannel = pr.get(CONTROL_CHANNEL_PROP_NAME, CONTROL_CHANNEL_DEFAULT);
-    controlStreamId = pr.get(CONTROL_STREAM_ID_PROP_NAME, CONTROL_STREAM_ID_DEFAULT);
-    localControlChannel = pr.get(LOCAL_CONTROL_CHANNEL_PROP_NAME, LOCAL_CONTROL_CHANNEL_DEFAULT);
-    localControlStreamId = pr.get(LOCAL_CONTROL_STREAM_ID_PROP_NAME, LOCAL_CONTROL_STREAM_ID_DEFAULT);
-    controlResponseChannel = pr.get(CONTROL_RESPONSE_CHANNEL_PROP_NAME, CONTROL_RESPONSE_CHANNEL_DEFAULT);
-    controlResponseStreamId = pr.get(CONTROL_RESPONSE_STREAM_ID_PROP_NAME, CONTROL_RESPONSE_STREAM_ID_DEFAULT);
-    recordingEventsChannel = pr.get(RECORDING_EVENTS_CHANNEL_PROP_NAME, RECORDING_EVENTS_CHANNEL_DEFAULT);
-    recordingEventsStreamId = pr.get(RECORDING_EVENTS_STREAM_ID_PROP_NAME, RECORDING_EVENTS_STREAM_ID_DEFAULT);
-    controlTermBufferSparse = pr.get(CONTROL_TERM_BUFFER_SPARSE_PROP_NAME, CONTROL_TERM_BUFFER_SPARSE_DEFAULT);
-    controlTermBufferLength = pr.get(CONTROL_TERM_BUFFER_LENGTH_PROP_NAME, CONTROL_TERM_BUFFER_LENGTH_DEFAULT);
-    controlMtuLength = pr.get(CONTROL_MTU_LENGTH_PROP_NAME, CONTROL_MTU_LENGTH_DEFAULT);
+    messageTimeoutNs = pr.get(MessageTimeout::key(), MessageTimeout::defaultValue());
+    controlChannel = pr.get(ControlChannel::key(), ControlChannel::defaultValue());
+    controlStreamId = pr.get(ControlStreamId::key(), ControlStreamId::defaultValue());
+    localControlChannel = pr.get(LocalControlChannel::key(), LocalControlChannel::defaultValue());
+    localControlStreamId = pr.get(LocalControlStreamId::key(), LocalControlStreamId::defaultValue());
+    controlResponseChannel = pr.get(ControlResponseChannel::key(), ControlResponseChannel::defaultValue());
+    controlResponseStreamId = pr.get(ControlResponseStreamId::key(), ControlResponseStreamId::defaultValue());
+    recordingEventsChannel = pr.get(RecordingEventsChannel::key(), RecordingEventsChannel::defaultValue());
+    recordingEventsStreamId = pr.get(RecordingEventsStreamId::key(), RecordingEventsStreamId::defaultValue());
+    controlTermBufferSparse = pr.get(ControlTermBufferSparse::key(), ControlTermBufferSparse::defaultValue());
+    controlTermBufferLength = pr.get(ControlTermBufferLength::key(), ControlTermBufferLength::defaultValue());
+    controlMtuLength = pr.get(ControlMtuLength::key(), ControlMtuLength::defaultValue());
 }
 
 }  // namespace archive

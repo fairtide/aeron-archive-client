@@ -53,12 +53,43 @@ protected:
 
         of << propertyFileContent;
         of.close();
+
+        // set env variables
+        setenv("AERON_ARCHIVE_MESSAGE_TIMEOUT", "123456", 1);
+        setenv("AERON_ARCHIVE_CONTROL_CHANNEL", "qqqwwweee", 1);
+        setenv("AERON_ARCHIVE_CONTROL_STREAM_ID", "42", 1);
+        setenv("AERON_ARCHIVE_LOCAL_CONTROL_CHANNEL", "ipc:aeron", 1);
+        setenv("AERON_ARCHIVE_LOCAL_CONTROL_STREAM_ID", "314", 1);
+        setenv("AERON_ARCHIVE_CONTROL_RESPONSE_CHANNEL", "ResponsEconTrol", 1);
+        setenv("AERON_ARCHIVE_CONTROL_RESPONSE_STREAM_ID", "271", 1);
+        setenv("AERON_ARCHIVE_RECORDING_EVENTS_CHANNEL", "aaaaassss", 1);
+        setenv("AERON_ARCHIVE_RECORDING_EVENTS_STREAM_ID", "144", 1);
+        setenv("AERON_ARCHIVE_CONTROL_TERM_BUFFER_SPARSE", "0", 1);
+        setenv("AERON_ARCHIVE_CONTROL_TERM_BUFFER_LENGTH", "1024", 1);
+        setenv("AERON_ARCHIVE_CONTROL_MTU_LENGTH", "1812", 1);
     }
 
     void TearDown() override { std::remove(filename.c_str()); }
 
     std::string filename;
 };
+
+TEST_F(ConfigurationTest, shouldReadConfigFromEnvVariables) {
+    aeron::archive::Configuration cfg;
+
+    EXPECT_EQ(123456, cfg.messageTimeoutNs);
+    EXPECT_EQ("qqqwwweee", cfg.controlChannel);
+    EXPECT_EQ(42, cfg.controlStreamId);
+    EXPECT_EQ("ipc:aeron", cfg.localControlChannel);
+    EXPECT_EQ(314, cfg.localControlStreamId);
+    EXPECT_EQ("ResponsEconTrol", cfg.controlResponseChannel);
+    EXPECT_EQ(271, cfg.controlResponseStreamId);
+    EXPECT_EQ("aaaaassss", cfg.recordingEventsChannel);
+    EXPECT_EQ(144, cfg.recordingEventsStreamId);
+    EXPECT_EQ(false, cfg.controlTermBufferSparse);
+    EXPECT_EQ(1024, cfg.controlTermBufferLength);
+    EXPECT_EQ(1812, cfg.controlMtuLength);
+}
 
 TEST_F(ConfigurationTest, shouldReadConfigFromPropertyFile) {
     aeron::archive::Configuration cfg(filename);
