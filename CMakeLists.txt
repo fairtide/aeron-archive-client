@@ -32,6 +32,7 @@ find_package(Doxygen)
 enable_testing()
 include(CTest)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__PROJECT_SOURCE_DIR__='\"${PROJECT_SOURCE_DIR}\"'")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic -Wextra -Wno-unused-parameter -std=c++14 -g")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")

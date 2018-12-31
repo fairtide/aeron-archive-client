@@ -38,9 +38,9 @@ std::int32_t RecordingDescriptorPoller::poll() {
     return subscription_->controlledPoll(fragmentAssembler_.handler(), fragmentLimit_);
 }
 
-void RecordingDescriptorPoller::reset(std::int64_t expectedCorrelationId, std::int32_t remainingRecordCount,
+void RecordingDescriptorPoller::reset(std::int64_t correlationId, std::int32_t remainingRecordCount,
                                       RecordingDescriptorConsumer&& consumer) {
-    expectedCorrelationId_ = expectedCorrelationId;
+    correlationId_ = correlationId;
     consumer_ = consumer;
     remainingRecordCount_ = remainingRecordCount;
     isDispatchComplete_ = false;
@@ -66,13 +66,15 @@ ControlledPollAction RecordingDescriptorPoller::onFragment(concurrent::AtomicBuf
 
         if (controlSessionId_ == msg.controlSessionId()) {
             auto code = msg.code();
+            const std::int64_t correlationId = msg.correlationId();
 
-            if (code == codecs::ControlResponseCode::RECORDING_UNKNOWN) {
+            if (code == codecs::ControlResponseCode::RECORDING_UNKNOWN &&
+                correlationId_ == correlationId) {
                 isDispatchComplete_ = true;
                 return ControlledPollAction::BREAK;
             } else if (code == codecs::ControlResponseCode::ERROR) {
                 throw ArchiveException(
-                    "response for expectedCorrelationId=" + std::to_string(expectedCorrelationId_) +
+                    "response for correlationId=" + std::to_string(correlationId_) +
                     ", error: " + msg.getErrorMessageAsString(), SOURCEINFO);
             }
         }
@@ -81,15 +83,15 @@ ControlledPollAction RecordingDescriptorPoller::onFragment(concurrent::AtomicBuf
         msg.wrapForDecode((char*)buffer.buffer(), offset + hdr.encodedLength(), hdr.blockLength(), hdr.version(),
                           buffer.capacity());
 
-        const std::int64_t correlationId = msg.correlationId();
-        if (controlSessionId_ == msg.controlSessionId() && correlationId == expectedCorrelationId_) {
-            consumer_(controlSessionId_, correlationId, msg.recordingId(), msg.startTimestamp(), msg.stopTimestamp(),
+        if (controlSessionId_ == msg.controlSessionId() && correlationId_ == msg.correlationId()) {
+            consumer_(controlSessionId_, correlationId_, msg.recordingId(), msg.startTimestamp(), msg.stopTimestamp(),
                       msg.startPosition(), msg.stopPosition(), msg.initialTermId(), msg.segmentFileLength(),
                       msg.termBufferLength(), msg.mtuLength(), msg.sessionId(), msg.streamId(), msg.getStrippedChannelAsString(),
                       msg.getOriginalChannelAsString(), msg.getSourceIdentityAsString());
 
             if (--remainingRecordCount_ == 0) {
                 isDispatchComplete_ = true;
+                return ControlledPollAction::BREAK;
             }
         }
     } else {

@@ -93,7 +93,8 @@ boost::optional<std::string> AeronArchive::pollForErrorResponse() {
     std::unique_lock<std::mutex> lock(lock_);
 
     if (controlResponsePoller_->poll() != 0 && controlResponsePoller_->isPollComplete()) {
-        if (controlResponsePoller_->templateId() == codecs::ControlResponse::sbeTemplateId() &&
+        if (controlResponsePoller_->controlSessionId() == controlSessionId_ &&
+            controlResponsePoller_->templateId() == codecs::ControlResponse::sbeTemplateId() &&
             controlResponsePoller_->code() == codecs::ControlResponseCode::ERROR) {
             return controlResponsePoller_->errorMessage();
         }
@@ -106,7 +107,8 @@ void AeronArchive::checkForErrorResponse() {
     std::unique_lock<std::mutex> lock(lock_);
 
     if (controlResponsePoller_->poll() != 0 && controlResponsePoller_->isPollComplete()) {
-        if (controlResponsePoller_->templateId() == codecs::ControlResponse::sbeTemplateId() &&
+        if (controlResponsePoller_->controlSessionId() == controlSessionId_ &&
+            controlResponsePoller_->templateId() == codecs::ControlResponse::sbeTemplateId() &&
             controlResponsePoller_->code() == codecs::ControlResponseCode::ERROR) {
             throw ArchiveException("error: " + controlResponsePoller_->errorMessage() +
                                        ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()),
@@ -251,11 +253,11 @@ std::int32_t AeronArchive::listRecordings(std::int64_t fromRecordingId, std::int
 }
 
 std::int32_t AeronArchive::listRecordingsForUri(std::int64_t fromRecordingId, std::int32_t recordCount,
-                                                const std::string& channel, std::int32_t streamId,
+                                                const std::string& channelFragment, std::int32_t streamId,
                                                 RecordingDescriptorConsumer&& consumer) {
     return callAndPollForDescriptors(
         [&](std::int64_t correlationId) {
-            return archiveProxy_->listRecordingsForUri(fromRecordingId, recordCount, channel, streamId, correlationId,
+            return archiveProxy_->listRecordingsForUri(fromRecordingId, recordCount, channelFragment, streamId, correlationId,
                                                        controlSessionId_);
         },
         recordCount, std::move(consumer), "list recordings for URI");
@@ -293,11 +295,11 @@ std::int64_t AeronArchive::getStopPosition(std::int64_t recordingId) {
         "get recording stop position");
 }
 
-std::int32_t AeronArchive::findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channel,
+std::int32_t AeronArchive::findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channelFragment,
                                                      std::int32_t streamId, std::int32_t sessionId) {
     return callAndPollForResponse(
         [&](std::int64_t correlationId) {
-            return this->archiveProxy_->findLastMatchingRecording(minRecordingId, channel, streamId, sessionId,
+            return this->archiveProxy_->findLastMatchingRecording(minRecordingId, channelFragment, streamId, sessionId,
                                                                   correlationId, controlSessionId_);
         },
         "find last matching recording");
@@ -359,18 +361,16 @@ std::int64_t AeronArchive::pollForResponse(std::int64_t correlationId) {
         }
 
         auto code = controlResponsePoller_->code();
-        if (code != codecs::ControlResponseCode::OK) {
-            if (code == codecs::ControlResponseCode::ERROR) {
-                throw ArchiveException("response for correlation id: " + std::to_string(correlationId) +
-                                           ", error: " + controlResponsePoller_->errorMessage() +
-                                           ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()),
-                                       SOURCEINFO);
+        if (code == codecs::ControlResponseCode::ERROR) {
+            throw ArchiveException("response for correlation id: " + std::to_string(correlationId) +
+                                       ", error: " + controlResponsePoller_->errorMessage() +
+                                       ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()),
+                                   SOURCEINFO);
+        } else if (correlationId == controlResponsePoller_->correlationId()) {
+            if (code != codecs::ControlResponseCode::OK) {
+                throw ArchiveException("unexpected response: code=" + std::to_string(code), SOURCEINFO);
             }
 
-            throw ArchiveException("unexpected response: code=" + std::to_string(code), SOURCEINFO);
-        }
-
-        if (controlResponsePoller_->correlationId() == correlationId) {
             return controlResponsePoller_->relevantId();
         }
     }
