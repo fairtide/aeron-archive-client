@@ -15,7 +15,7 @@
 #
 
 # install SBE
-set(SBE_VERSION "1.9.0" CACHE STRING "SBE version")
+set(SBE_VERSION "1.10.1" CACHE STRING "SBE version")
 set(SBE_PREFIX ${THIRDPARTY_BINARY_DIR}/sbe)
 set(SBE_SOURCE_DIR ${SBE_PREFIX}/src/sbe)
 
