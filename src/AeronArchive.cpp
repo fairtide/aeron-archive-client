@@ -366,9 +366,7 @@ std::int64_t AeronArchive::pollForResponse(std::int64_t correlationId) {
                                        ", error: " + controlResponsePoller_->errorMessage() +
                                        ", relevant id: " + std::to_string(controlResponsePoller_->relevantId()),
                                    SOURCEINFO);
-        }
-
-        if (correlationId == controlResponsePoller_->correlationId()) {
+        } else if (correlationId == controlResponsePoller_->correlationId()) {
             if (code != codecs::ControlResponseCode::OK) {
                 throw ArchiveException("unexpected response: code=" + std::to_string(code), SOURCEINFO);
             }
