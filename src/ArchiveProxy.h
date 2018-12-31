@@ -58,7 +58,7 @@ public:
     bool listRecordings(std::int64_t fromRecordingId, std::int32_t recordCount, std::int64_t correlationId,
                         std::int64_t controlSessionId);
 
-    bool listRecordingsForUri(std::int64_t fromRecordingId, std::int32_t recordCount, const std::string& channel,
+    bool listRecordingsForUri(std::int64_t fromRecordingId, std::int32_t recordCount, const std::string& channelFragment,
                               std::int32_t streamId, std::int64_t correlationId, std::int64_t controlSessionId);
 
     bool listRecording(std::int64_t recordingId, std::int64_t correlationId, std::int64_t controlSessionId);
@@ -74,7 +74,7 @@ public:
 
     bool getStopPosition(std::int64_t recordingId, std::int64_t correlationId, std::int64_t controlSessionId);
 
-    bool findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channel, std::int32_t streamId,
+    bool findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channelFragment, std::int32_t streamId,
                                    std::int32_t sessionId, std::int64_t correlationId, std::int64_t controlSessionId);
 
 private:
