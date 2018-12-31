@@ -89,7 +89,7 @@ public:
                                 RecordingDescriptorConsumer&& consumer);
 
     std::int32_t listRecordingsForUri(std::int64_t fromRecordingId, std::int32_t recordCount,
-                                      const std::string& channel, std::int32_t streamId,
+                                      const std::string& channelFragment, std::int32_t streamId,
                                       RecordingDescriptorConsumer&& consumer);
 
     std::int32_t listRecording(std::int64_t recordingId, RecordingDescriptorConsumer&& consumer);
@@ -100,7 +100,7 @@ public:
 
     std::int64_t getStopPosition(std::int64_t recordingId);
 
-    std::int32_t findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channel,
+    std::int32_t findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channelFragment,
                                            std::int32_t streamId, std::int32_t sessionId);
 
 private:

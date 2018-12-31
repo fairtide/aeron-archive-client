@@ -171,7 +171,7 @@ bool ArchiveProxy::listRecordings(std::int64_t fromRecordingId, std::int32_t rec
 }
 
 bool ArchiveProxy::listRecordingsForUri(std::int64_t fromRecordingId, std::int32_t recordCount,
-                                        const std::string& channel, std::int32_t streamId, std::int64_t correlationId,
+                                        const std::string& channelFragment, std::int32_t streamId, std::int64_t correlationId,
                                         std::int64_t controlSessionId) {
     codecs::ListRecordingsForUriRequest msg;
 
@@ -181,7 +181,7 @@ bool ArchiveProxy::listRecordingsForUri(std::int64_t fromRecordingId, std::int32
         .fromRecordingId(fromRecordingId)
         .recordCount(recordCount)
         .streamId(streamId)
-        .putChannel(channel);
+        .putChannel(channelFragment);
 
     return offer(msg.encodedLength());
 }
@@ -244,7 +244,7 @@ bool ArchiveProxy::getStopPosition(std::int64_t recordingId, std::int64_t correl
     return offer(msg.encodedLength());
 }
 
-bool ArchiveProxy::findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channel, std::int32_t streamId,
+bool ArchiveProxy::findLastMatchingRecording(std::int64_t minRecordingId, const std::string& channelFragment, std::int32_t streamId,
                                    std::int32_t sessionId, std::int64_t correlationId, std::int64_t controlSessionId)
 {
     codecs::FindLastMatchingRecordingRequest msg;
@@ -255,7 +255,7 @@ bool ArchiveProxy::findLastMatchingRecording(std::int64_t minRecordingId, const 
         .minRecordingId(minRecordingId)
         .sessionId(sessionId)
         .streamId(streamId)
-        .putChannel(channel);
+        .putChannel(channelFragment);
 
     return offer(msg.encodedLength());
 }

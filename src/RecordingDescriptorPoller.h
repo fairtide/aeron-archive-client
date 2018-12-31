@@ -34,7 +34,7 @@ public:
                               std::int64_t controlSessionId);
 
     std::int32_t poll();
-    void reset(std::int64_t expectedCorrelationId, std::int32_t remainingRecordCount,
+    void reset(std::int64_t correlationId, std::int32_t remainingRecordCount,
                RecordingDescriptorConsumer&& consumer);
 
     const std::shared_ptr<aeron::Subscription>& subscription() const;
@@ -51,7 +51,7 @@ private:
     std::int64_t controlSessionId_;
     aeron::ControlledFragmentAssembler fragmentAssembler_;
 
-    std::int64_t expectedCorrelationId_;
+    std::int64_t correlationId_;
     std::int32_t remainingRecordCount_;
     RecordingDescriptorConsumer consumer_;
     bool isDispatchComplete_{false};
