@@ -70,7 +70,7 @@ Fine tuning of the client can be done via a property file or via environment var
 | AERON_ARCHIVE_CONTROL_MTU_LENGTH | aeron.archive.control.mtu.length | 1408 |
 
 ## Licence (See LICENSE file for full license)
-Copyright 2018 Fairtide Pte. Ltd.
+Copyright 2018-2019 Fairtide Pte. Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
