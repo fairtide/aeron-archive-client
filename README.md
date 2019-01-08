@@ -15,7 +15,7 @@ You require the following to build the C++ API for Aeron Archive Client:
 * Recent Boost library
 * Java JDK to build Aeron & SBE dependencies
 
-The project has internal dependencies on [Aeron (v. 1.13.0)](https://github.com/real-logic/aeron), [simple-binary-encoding (v. 1.10.1)](https://github.com/real-logic/simple-binary-encoding) & [Google Test (v. 1.8.1)](https://github.com/google/googletest) libraries which are automatically downloaded from Github by the build system
+The project has internal dependencies on [Aeron (v. 1.14.0)](https://github.com/real-logic/aeron), [simple-binary-encoding (v. 1.10.2)](https://github.com/real-logic/simple-binary-encoding) & [Google Test (v. 1.8.1)](https://github.com/google/googletest) libraries which are automatically downloaded from Github by the build system
 
 To run the full build with tests and samples:
 
@@ -39,13 +39,13 @@ There are some samples provided:
 To run these samples one need to start the archiving media driver first:
 
 ```shell
-$ java -cp <path-to>/aeron-all-1.13.0.jar io.aeron.archive.ArchivingMediaDriver
+$ java -cp <path-to>/aeron-all-1.14.0.jar io.aeron.archive.ArchivingMediaDriver
 ```
 
 Then start **RecordedBasicPublisher** and some consumer which will subscribe to the publisher. The consumer is required for the driver to start recording. One could use a basic subscriber from Aeron samples
 
 ```shell
-$ java -cp <path-to>/aeron-all-1.13.0.jar io.aeron.samples.BasicSubscriber
+$ java -cp <path-to>/aeron-all-1.14.0.jar io.aeron.samples.BasicSubscriber
 ```
 
 The **ReplayedBasicSubscriber** will replay the  recorded stream.
