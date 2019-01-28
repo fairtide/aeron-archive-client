@@ -1,5 +1,5 @@
 #
-# Copyright 2018 Fairtide Pte. Ltd.
+# Copyright 2018-2019 Fairtide Pte. Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 #
 
 # install SBE
-set(SBE_VERSION "1.10.1" CACHE STRING "SBE version")
+set(SBE_VERSION "1.11.0" CACHE STRING "SBE version")
 set(SBE_PREFIX ${THIRDPARTY_BINARY_DIR}/sbe)
 set(SBE_SOURCE_DIR ${SBE_PREFIX}/src/sbe)
 
