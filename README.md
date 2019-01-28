@@ -15,7 +15,7 @@ You require the following to build the C++ API for Aeron Archive Client:
 * Recent Boost library
 * Java JDK to build Aeron & SBE dependencies
 
-The project has internal dependencies on [Aeron (v. 1.14.0)](https://github.com/real-logic/aeron), [simple-binary-encoding (v. 1.10.2)](https://github.com/real-logic/simple-binary-encoding) & [Google Test (v. 1.8.1)](https://github.com/google/googletest) libraries which are automatically downloaded from Github by the build system
+The project has internal dependencies on [Aeron (v. 1.15.0)](https://github.com/real-logic/aeron), [simple-binary-encoding (v. 1.11.0)](https://github.com/real-logic/simple-binary-encoding) & [Google Test (v. 1.8.1)](https://github.com/google/googletest) libraries which are automatically downloaded from Github by the build system
 
 To run the full build with tests and samples:
 
